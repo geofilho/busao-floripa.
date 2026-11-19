@@ -58,6 +58,8 @@ public final class FenixParser {
     public static final class Timetable {
         public String code = "", name = "", updated = "";
         public final List<Departure> departures = new ArrayList<>();
+        /** Ruas e lugares por onde a linha passa, em ordem (ida e volta). */
+        public final List<String> itinerary = new ArrayList<>();
         public int indexOf(String depName) {
             for (int i = 0; i < departures.size(); i++) if (departures.get(i).name.equals(depName)) return i;
             return -1;
@@ -408,7 +410,66 @@ public final class FenixParser {
             }
         }
         for (Departure dep : tt.departures) for (int d = 0; d < 3; d++) dep.days.set(d, fixWrap(dep.days.get(d)));
+        tt.itinerary.addAll(parseItinerary(html));
         return tt;
+    }
+
+    /**
+     * Itinerário: itens de lista depois do título "Itinerário", até o próximo título ou a legenda.
+     * Se a página repetir a mesma lista (versão para celular), fica só uma.
+     */
+    static List<String> parseItinerary(String html) {
+        List<List<String>> lists = new ArrayList<>();
+        List<String> cur = null, loose = new ArrayList<>();
+        boolean inItin = false, inHeading = false, inLi = false;
+        StringBuilder head = new StringBuilder(), li = new StringBuilder();
+        Matcher m = TOKEN.matcher(html);
+        while (m.find()) {
+            String tag = m.group(2);
+            if (tag != null) {
+                tag = tag.toLowerCase(Locale.ROOT);
+                boolean close = !m.group(1).isEmpty();
+                if (tag.matches("h[1-6]")) {
+                    if (!close) { inHeading = true; head.setLength(0); }
+                    else if (inHeading) {
+                        inHeading = false;
+                        String f = fold(head.toString());
+                        if (f.equals("itinerario") || f.startsWith("itinerario ")) {
+                            inItin = true;
+                            cur = new ArrayList<>();
+                            lists.add(cur);
+                        } else if (!f.isEmpty()) inItin = false;
+                    }
+                } else if (tag.equals("li") && inItin) {
+                    if (!close) { inLi = true; li.setLength(0); }
+                    else if (inLi) {
+                        inLi = false;
+                        String t = cleanStop(li.toString());
+                        if (!t.isEmpty() && cur != null) cur.add(t);
+                    }
+                } else if (tag.equals("br") && inLi) li.append(' ');
+            } else if (m.group(4) != null) {
+                String t = decode(m.group(4));
+                if (inHeading) { head.append(t); continue; }
+                if (!inItin) continue;
+                String f = fold(t);
+                if (f.startsWith("legenda") || f.startsWith("atendimento")) { inItin = false; continue; }
+                if (inLi) li.append(t);
+                else if (cur != null && cur.isEmpty()) {
+                    String c = cleanStop(t);
+                    if (!c.isEmpty()) loose.add(c);
+                }
+            }
+        }
+        List<String> best = new ArrayList<>();
+        for (List<String> l : lists) if (l.size() > best.size()) best = l;
+        if (best.isEmpty() && loose.size() >= 2) best = loose;
+        return best;
+    }
+
+    /** Tira a numeração do início ("1.", "2 -") e espaços extras. */
+    static String cleanStop(String raw) {
+        return norm(raw).replaceFirst("^\\d{1,3}\\s*[.)\\-–:]?\\s+", "");
     }
 
     /** Junta tabelas lado a lado (uma por saída) no mesmo bloco. */

@@ -37,6 +37,9 @@ public class AjudaActivity extends Activity {
             "O botão Tabela de hoje troca entre dias úteis, sábado e domingo. Use em feriados que o app não conhece.",
             "Em Opções da lista você renomeia, exclui e liga a lista a um local: onde você está agora ou o link do Google Maps do ponto. Perto desse local, a lista aparece primeiro na tela inicial.",
 
+            "#Itinerário",
+            "Na tela de horários de uma linha, o botão Itinerário mostra, em ordem, as ruas e lugares por onde ela passa, na ida e na volta. O site do Fênix não informa os pontos de parada, só as ruas.",
+
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",
             "Na busca de linhas: uma ação para cada saída e Adicionar a uma lista.",

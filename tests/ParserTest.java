@@ -52,6 +52,18 @@ public class ParserTest {
         Trip last = ti.days.get(0).get(ti.days.get(0).size() - 1);
         check(last.min == 1440 + 15 && last.flags.equals("ER"), "A: 00:15 vira depois da meia-noite");
 
+        // Itinerário (título repetido, lista numerada, legenda depois)
+        String it = "<h4>Itinerário</h4><h4>Itinerário</h4><ol><li>TICEN - TERMINAL DE INTEGRAÇÃO DO CENTRO</li>"
+                + "<li>PONTE GOVERNADOR COLOMBO SALLES</li><li>RUA CAMPOLINO ALVES (PONTO FINAL)</li>"
+                + "<li>TICEN - TERMINAL DE INTEGRAÇÃO DO CENTRO</li></ol><h4>Legenda</h4><ul><li>* Horário previsto</li></ul>";
+        Timetable ti2 = FenixParser.parseLine(A.toString().replace("<h3>Itinerário</h3><ol><li>TICEN - TERMINAL</li></ol>", it));
+        check(ti2.itinerary.size() == 4 && ti2.itinerary.get(2).equals("RUA CAMPOLINO ALVES (PONTO FINAL)"), "itinerário: 4 itens em ordem " + ti2.itinerary);
+        check(ti2.departures.get(0).days.get(0).size() == 3, "itinerário não atrapalha os horários");
+        List<String> num = FenixParser.parseLine("<h4>Itinerário</h4><div>1. RUA A</div><div>2 - RUA B</div><p>Legenda</p>").itinerary;
+        check(num.equals(java.util.Arrays.asList("RUA A", "RUA B")), "itinerário sem lista, numerado " + num);
+        List<String> dup = FenixParser.parseLine("<h4>Itinerário</h4><ol><li>X</li><li>Y</li></ol><h4>Itinerário</h4><ol><li>X</li><li>Y</li></ol>").itinerary;
+        check(dup.size() == 2, "itinerário repetido fica uma vez");
+
         // Formato B: blocos em div com títulos de dia e de saída, em sequência
         StringBuilder B = new StringBuilder();
         String[] dn = {"Dias Úteis", "Sábado", "Domingos e Feriados"};

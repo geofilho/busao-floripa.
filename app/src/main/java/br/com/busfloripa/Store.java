@@ -114,8 +114,10 @@ public final class Store {
                 }
                 deps.put(new JSONObject().put("n", d.name).put("d", days));
             }
+            JSONArray itin = new JSONArray();
+            for (String st : tt.itinerary) itin.put(st);
             write(ttFile(tt.code), new JSONObject().put("c", tt.code).put("n", tt.name)
-                    .put("u", tt.updated).put("deps", deps).toString());
+                    .put("u", tt.updated).put("deps", deps).put("it", itin).toString());
         } catch (Exception ignored) { }
     }
 
@@ -149,6 +151,8 @@ public final class Store {
                 }
                 tt.departures.add(dep);
             }
+            JSONArray itin = o.optJSONArray("it");
+            if (itin != null) for (int i = 0; i < itin.length(); i++) tt.itinerary.add(itin.optString(i));
             return tt;
         } catch (Exception e) { return null; }
     }

@@ -70,6 +70,8 @@ public class HorariosActivity extends Activity {
             Ui.say(this, Schedule.sentidoLabel(tt, depIdx));
         });
 
+        findViewById(R.id.itinerary).setOnClickListener(v -> showItinerary());
+
         info.setText("Carregando horários…");
         repo.timetable(code, name, url, (t, err) -> {
             if (isFinishing()) return;
@@ -123,4 +125,34 @@ public class HorariosActivity extends Activity {
         String upd = tt.updated.isEmpty() ? "" : " Tabela do Fênix atualizada em " + tt.updated + ".";
         info.setText(trips.size() + " saídas em " + FenixParser.DAY_NAMES[day].toLowerCase() + "." + upd);
     }
+
+    /** Lista das ruas e lugares por onde a linha passa. Baixa se a cópia salva ainda não tiver. */
+    private void showItinerary() {
+        if (tt == null) return;
+        if (tt.itinerary.isEmpty()) {
+            info.setText("Baixando o itinerário…");
+            repo.download(code, name, url, (t, err) -> {
+                if (isFinishing()) return;
+                if (t == null) { info.setText("Não foi possível baixar o itinerário. " + err + "."); return; }
+                tt = t;
+                render();
+                if (tt.itinerary.isEmpty()) {
+                    new android.app.AlertDialog.Builder(this).setTitle("Itinerário")
+                            .setMessage("O site do Fênix não mostra o itinerário desta linha.")
+                            .setPositiveButton("Fechar", null).show();
+                } else showItinerary();
+            });
+            return;
+        }
+        List<String> items = new ArrayList<>();
+        for (int i = 0; i < tt.itinerary.size(); i++) items.add((i + 1) + ". " + tt.itinerary.get(i));
+        ListView lv = new ListView(this);
+        lv.setAdapter(Ui.adapter(this, items));
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Itinerário da " + code + ", ida e volta, " + items.size() + " trechos")
+                .setView(lv)
+                .setPositiveButton("Fechar", null)
+                .show();
+    }
+
 }
