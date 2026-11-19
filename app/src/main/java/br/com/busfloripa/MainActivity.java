@@ -108,8 +108,11 @@ public class MainActivity extends Activity {
             status.setText(r.summary());
             problemDialog(r);
         } else {
-            status.setText(r.summary());
-            if (manual) Ui.say(this, r.summary());
+            String ok = r.summary();
+            status.setText(ok);
+            if (manual) Ui.say(this, ok);
+            // Deu tudo certo: o aviso some sozinho depois de alguns segundos.
+            status.postDelayed(() -> { if (ok.contentEquals(status.getText())) status.setText(""); }, 8000);
         }
     }
 
@@ -134,8 +137,10 @@ public class MainActivity extends Activity {
         startActivity(new Intent(this, DiagnosticoActivity.class));
     }
 
+    private static final String LOADING = "Carregando linhas do Consórcio Fênix…";
+
     private void loadLines(boolean force) {
-        if (all.isEmpty()) status.setText("Carregando linhas do Consórcio Fênix…");
+        if (all.isEmpty()) status.setText(LOADING);
         repo.lines(force, (lines, err) -> {
             if (lines == null) {
                 status.setText("Não foi possível carregar as linhas. " + err
@@ -146,6 +151,8 @@ public class MainActivity extends Activity {
             all.addAll(lines);
             all.sort(MainActivity::byNumber);
             filter();
+            // Linhas carregadas: tira o aviso de carregamento (sem mexer em outro aviso, como o da atualização).
+            if (LOADING.contentEquals(status.getText())) status.setText("");
         });
     }
 
