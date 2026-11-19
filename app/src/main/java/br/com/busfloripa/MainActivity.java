@@ -53,6 +53,9 @@ public class MainActivity extends Activity {
             Ui.lineActions(this, l.code, l.name, l.url, null, null, this::renderLists);
         });
 
+        search.setOnFocusChangeListener((v, has) -> {
+            if (!has && shown.isEmpty() && search.getText().length() > 0) clearSearch();
+        });
         search.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int c, int d) { }
             @Override public void onTextChanged(CharSequence s, int a, int c, int d) { }
@@ -116,23 +119,20 @@ public class MainActivity extends Activity {
         super.onBackPressed();
     }
 
+    private boolean quiet;
+
+    /** Limpa a busca em silêncio: o leitor de tela não fala "linha não encontrada" nem a contagem. */
     private void clearSearch() {
+        quiet = true;
         search.setText("");
+        quiet = false;
         search.clearFocus();
     }
 
-    /** Ao sair do app (botão Início ou trocar de app), a busca é limpa para a próxima vez. */
-    private boolean leftApp;
-
-    @Override protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-        leftApp = true;
-    }
-
+    /** Ao voltar de outra tela ou de outro app, a busca começa limpa. */
     @Override protected void onRestart() {
         super.onRestart();
-        if (leftApp && search.getText().length() > 0) clearSearch();
-        leftApp = false;
+        if (search.getText().length() > 0) clearSearch();
     }
 
     private void filter() {
@@ -149,8 +149,8 @@ public class MainActivity extends Activity {
         rows.clear();
         for (FenixParser.Line l : shown) rows.add(l.code + ", " + l.name);
         adapter.notifyDataSetChanged();
-        if (all.isEmpty()) return;
-        status.setText(q.isEmpty() ? all.size() + " linhas" : shown.isEmpty() ? "Nenhuma linha encontrada"
+        if (all.isEmpty() || quiet) { if (quiet) status.setText(""); return; }
+        status.setText(q.isEmpty() ? "" : shown.isEmpty() ? "Nenhuma linha encontrada"
                 : shown.size() == 1 ? "1 linha encontrada" : shown.size() + " linhas encontradas");
     }
 
