@@ -99,23 +99,29 @@ public final class Schedule {
         return f.startsWith("ticen") || f.contains(" ticen") || f.startsWith("centro") || f.contains("terminal centro");
     }
 
-    /** Versão curta para a lista: "sentido centro", "sentido bairro" ou "saída X". */
-    public static String sentidoShort(FenixParser.Timetable tt, int idx) {
-        String full = sentidoLabel(tt, idx);
-        if (full.startsWith("Sentido centro")) return "sentido centro";
-        if (full.startsWith("Sentido bairro")) return "sentido bairro";
-        return "saída " + tt.departures.get(idx).name;
-    }
+    public static final int CENTRO = 1, BAIRRO = 2;
 
-    /** Rótulo amigável de uma saída: "Sentido bairro, saída TICEN ...". */
-    public static String sentidoLabel(FenixParser.Timetable tt, int idx) {
-        String name = tt.departures.get(idx).name;
-        boolean centro = isCentro(name);
+    /** Para onde vai o ônibus que parte desta saída: CENTRO, BAIRRO ou 0 se não der para saber. */
+    public static int direction(FenixParser.Timetable tt, int idx) {
+        boolean centro = isCentro(tt.departures.get(idx).name);
         boolean otherCentro = false;
         for (int i = 0; i < tt.departures.size(); i++)
             if (i != idx && isCentro(tt.departures.get(i).name)) otherCentro = true;
-        if (centro && !otherCentro) return "Sentido bairro, saída " + name;
-        if (!centro && otherCentro) return "Sentido centro, saída " + name;
-        return "Saída " + name;
+        if (centro && !otherCentro) return BAIRRO;
+        if (!centro && otherCentro) return CENTRO;
+        return 0;
+    }
+
+    /** Versão curta para a lista: "sentido centro", "sentido bairro" ou "saída X". */
+    public static String sentidoShort(FenixParser.Timetable tt, int idx) {
+        int d = direction(tt, idx);
+        if (d == CENTRO) return "sentido centro";
+        if (d == BAIRRO) return "sentido bairro";
+        return "saída " + tt.departures.get(idx).name;
+    }
+
+    /** Rótulo de uma saída nas janelas e na tela de horários: "Saída TICEN - Plataforma A - Box 6". */
+    public static String sentidoLabel(FenixParser.Timetable tt, int idx) {
+        return "Saída " + tt.departures.get(idx).name;
     }
 }

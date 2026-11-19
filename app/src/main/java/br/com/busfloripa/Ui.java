@@ -123,11 +123,11 @@ public final class Ui {
 
     // ---------- ações de uma linha ----------
 
-    /** Ordem das saídas: sentido centro primeiro, depois sentido bairro. */
+    /** Ordem das saídas: a que vai para o centro primeiro, depois a que vai para o bairro. */
     static List<Integer> depOrder(FenixParser.Timetable tt) {
         List<Integer> first = new ArrayList<>(), rest = new ArrayList<>();
         for (int i = 0; i < tt.departures.size(); i++) {
-            if (Schedule.sentidoLabel(tt, i).startsWith("Sentido centro")) first.add(i); else rest.add(i);
+            if (Schedule.direction(tt, i) == Schedule.CENTRO) first.add(i); else rest.add(i);
         }
         first.addAll(rest);
         return first;

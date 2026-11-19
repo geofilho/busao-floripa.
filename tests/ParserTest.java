@@ -92,7 +92,8 @@ public class ParserTest {
         List<Schedule.Arrival> late = Schedule.upcoming(ti, 0, LocalDateTime.of(2026, 11, 20, 0, 5), 2, 1);
         check(late.size() == 1 && late.get(0).at == 15 && late.get(0).departs == 15, "ônibus das 00:15 da noite anterior aparece (" + (late.isEmpty() ? "-" : late.get(0).at) + ")");
         check(Schedule.inMinutes(65).equals("em 1 hora e 5 minutos") && Schedule.inMinutes(8).equals("em 8 minutos"), "texto de minutos");
-        check(Schedule.sentidoLabel(ta, 0).startsWith("Sentido centro") && Schedule.sentidoLabel(ta, 1).startsWith("Sentido bairro"), "rótulos de sentido");
+        check(Schedule.direction(ta, 0) == Schedule.CENTRO && Schedule.direction(ta, 1) == Schedule.BAIRRO, "sentido de cada saída");
+        check(Schedule.sentidoLabel(ta, 1).equals("Saída TICEN - Plataforma B - Box 9"), "rótulo só com a saída (" + Schedule.sentidoLabel(ta, 1) + ")");
 
         // Links do Google Maps
         double[] g1 = br.com.busfloripa.MapsLink.find("https://www.google.com/maps/place/Ponto/@-27.5953,-48.5482,17z/data=!3m1!4b1!4m6!3m5!1s0x0:0x0!8m2!3d-27.5961!4d-48.5491");
