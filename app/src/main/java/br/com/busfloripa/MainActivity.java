@@ -294,7 +294,7 @@ public class MainActivity extends Activity {
             new android.app.AlertDialog.Builder(this)
                     .setTitle("Não foi possível restaurar")
                     .setMessage(m != null && m.startsWith("Este arquivo") ? m + "."
-                            : "O arquivo escolhido não é um backup válido do Busão Floripa.")
+                            : "O arquivo escolhido não é um backup válido do Busão Floripa G.")
                     .setPositiveButton("Fechar", null)
                     .show();
             return;

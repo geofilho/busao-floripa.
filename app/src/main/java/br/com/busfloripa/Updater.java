@@ -52,7 +52,7 @@ public final class Updater {
         }
 
         public String toText() {
-            StringBuilder sb = new StringBuilder("Diagnóstico Busão Floripa, ").append(when).append('\n')
+            StringBuilder sb = new StringBuilder("Diagnóstico Busão Floripa G, ").append(when).append('\n')
                     .append(summary()).append('\n');
             for (String l : lines) sb.append("- ").append(l).append('\n');
             return sb.toString();

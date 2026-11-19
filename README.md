@@ -1,4 +1,4 @@
-# Busão Floripa
+# Busão Floripa G
 
 App Android leve e acessível (TalkBack) para consultar horários de ônibus do
 Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.

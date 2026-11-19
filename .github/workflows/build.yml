@@ -41,6 +41,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: Busão Floripa ${{ github.run_number }}
+          name: Busão Floripa G ${{ github.run_number }}
           make_latest: true
           files: BusaoFloripa.apk

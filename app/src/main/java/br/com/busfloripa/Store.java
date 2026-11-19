@@ -232,7 +232,7 @@ public final class Store {
     /** Lê um backup sem aplicar. Lança erro se o arquivo não for um backup válido. */
     public static List<UserList> readBackup(String text) throws Exception {
         JSONObject o = new JSONObject(text);
-        if (!"busao-floripa".equals(o.optString("app"))) throw new Exception("Este arquivo não é um backup do Busão Floripa");
+        if (!"busao-floripa".equals(o.optString("app"))) throw new Exception("Este arquivo não é um backup do Busão Floripa G");
         return listsFromJson(o.getJSONArray("listas"));
     }
 
