@@ -86,8 +86,53 @@ public class MainActivity extends Activity {
             }
             all.clear();
             all.addAll(lines);
+            all.sort(MainActivity::byNumber);
             filter();
         });
+    }
+
+    /** Ordem numérica: 174 antes de V-174, 175 depois; códigos sem número no fim. */
+    static int byNumber(FenixParser.Line a, FenixParser.Line b) {
+        int na = number(a.code), nb = number(b.code);
+        if (na != nb) return Integer.compare(na, nb);
+        boolean va = !Character.isDigit(a.code.charAt(0)), vb = !Character.isDigit(b.code.charAt(0));
+        if (va != vb) return va ? 1 : -1;
+        return a.code.compareToIgnoreCase(b.code);
+    }
+
+    static int number(String code) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(code);
+        if (!m.find()) return Integer.MAX_VALUE;
+        try { return Integer.parseInt(m.group()); } catch (NumberFormatException e) { return Integer.MAX_VALUE; }
+    }
+
+    /** Voltar com uma busca feita: limpa a busca e mostra todas as linhas, em vez de sair do app. */
+    @Override public void onBackPressed() {
+        if (search.getText().length() > 0) {
+            clearSearch();
+            Ui.say(this, "Busca limpa. " + all.size() + " linhas");
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    private void clearSearch() {
+        search.setText("");
+        search.clearFocus();
+    }
+
+    /** Ao sair do app (botão Início ou trocar de app), a busca é limpa para a próxima vez. */
+    private boolean leftApp;
+
+    @Override protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        leftApp = true;
+    }
+
+    @Override protected void onRestart() {
+        super.onRestart();
+        if (leftApp && search.getText().length() > 0) clearSearch();
+        leftApp = false;
     }
 
     private void filter() {
