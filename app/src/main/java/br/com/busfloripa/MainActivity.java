@@ -46,7 +46,11 @@ public class MainActivity extends Activity {
         Ui.heading(findViewById(R.id.linesTitle));
 
         ListView lv = findViewById(R.id.lines);
-        adapter = Ui.adapter(this, rows);
+        adapter = new ActionAdapter(this, rows, pos -> {
+            if (pos >= shown.size()) return null;
+            FenixParser.Line l = shown.get(pos);
+            return Ui.optionsLazy(this, l.code, l.name, l.url, this::renderLists);
+        });
         lv.setAdapter(adapter);
         lv.setOnItemClickListener((p, v, pos, id) -> {
             FenixParser.Line l = shown.get(pos);

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ações do TalkBack nos itens das listas -->
+    <item name="action_1" type="id" />
+    <item name="action_2" type="id" />
+    <item name="action_3" type="id" />
+    <item name="action_4" type="id" />
+    <item name="action_5" type="id" />
+    <item name="action_6" type="id" />
+    <item name="action_7" type="id" />
+    <item name="action_8" type="id" />
+</resources>

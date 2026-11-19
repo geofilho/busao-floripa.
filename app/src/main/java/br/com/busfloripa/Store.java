@@ -32,6 +32,7 @@ public final class Store {
 
     private final File dir;
     private List<UserList> lists;
+    private final java.util.Map<String, FenixParser.Timetable> ttCache = new java.util.HashMap<>();
 
     private static Store instance;
     public static synchronized Store get(Context c) {
@@ -99,6 +100,7 @@ public final class Store {
     public static String ttFile(String code) { return "linha_" + code.replaceAll("[^A-Za-z0-9-]", "_") + ".json"; }
 
     public void saveTimetable(FenixParser.Timetable tt) {
+        synchronized (ttCache) { ttCache.put(tt.code, tt); }
         try {
             JSONArray deps = new JSONArray();
             for (FenixParser.Departure d : tt.departures) {
@@ -116,6 +118,15 @@ public final class Store {
     }
 
     public FenixParser.Timetable loadTimetable(String code) {
+        synchronized (ttCache) {
+            if (ttCache.containsKey(code)) return ttCache.get(code);
+        }
+        FenixParser.Timetable tt = loadTimetableFile(code);
+        if (tt != null) synchronized (ttCache) { ttCache.put(code, tt); }
+        return tt;
+    }
+
+    private FenixParser.Timetable loadTimetableFile(String code) {
         String s = read(ttFile(code));
         if (s == null) return null;
         try {

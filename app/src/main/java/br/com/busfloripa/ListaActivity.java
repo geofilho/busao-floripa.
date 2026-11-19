@@ -57,7 +57,14 @@ public class ListaActivity extends Activity {
         Ui.heading(title);
 
         ListView lv = findViewById(R.id.arrivals);
-        adapter = Ui.adapter(this, rows);
+        adapter = new ActionAdapter(this, rows, pos -> {
+            if (pos >= rowData.size() || rowData.get(pos).item == null) return null;
+            Store.Item it = rowData.get(pos).item;
+            FenixParser.Timetable tt = repo.cached(it.code);
+            if (tt == null) return null;
+            tt.name = it.name;
+            return Ui.options(this, tt, it.url, list, it, () -> rebuild(true));
+        });
         lv.setAdapter(adapter);
         lv.setOnItemClickListener((p, v, pos, id) -> {
             if (pos >= rowData.size()) return;

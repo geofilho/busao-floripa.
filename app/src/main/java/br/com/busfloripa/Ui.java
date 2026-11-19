@@ -137,8 +137,16 @@ public final class Ui {
      * Janela da linha. Sem item: sentidos + "Adicionar a uma lista".
      * Com item (linha dentro de uma lista): sentidos + alterar minutos + remover.
      */
-    public static void lineActions(Activity a, String code, String name, String url,
-                                   Store.UserList list, Store.Item item, Runnable changed) {
+    /** Uma opção da linha: aparece na janela e também como ação do TalkBack. */
+    public static final class Opt {
+        public final String label;
+        public final Runnable run;
+        Opt(String label, Runnable run) { this.label = label; this.run = run; }
+    }
+
+    /** Pega os horários (salvos ou baixando) e entrega; avisa se não der. */
+    public static void withTimetable(Activity a, String code, String name, String url,
+                                     Consumer<FenixParser.Timetable> ok) {
         Repo repo = new Repo(a);
         if (repo.cached(code) == null) say(a, "Baixando horários da linha " + code);
         repo.timetable(code, name, url, (tt, err) -> {
@@ -147,41 +155,72 @@ public final class Ui {
                 new AlertDialog.Builder(a)
                         .setTitle(code + " " + name)
                         .setMessage("Não foi possível abrir os horários. " + err + ".")
-                        .setPositiveButton("Tentar de novo", (d, w) -> lineActions(a, code, name, url, list, item, changed))
+                        .setPositiveButton("Tentar de novo", (d, w) -> withTimetable(a, code, name, url, ok))
                         .setNegativeButton("Fechar", null)
                         .show();
                 return;
             }
-            List<Integer> order = depOrder(tt);
-            List<String> opts = new ArrayList<>();
-            for (int i : order) opts.add(Schedule.sentidoLabel(tt, i));
-            int base = opts.size();
-            if (item == null) opts.add("Adicionar a uma lista");
-            else { opts.add("Alterar minutos até o meu ponto, agora " + item.offset); opts.add("Remover da lista"); }
+            ok.accept(tt);
+        });
+    }
+
+    /**
+     * Opções de uma linha com horários já em mãos. Sem item: saídas + "Adicionar a uma lista".
+     * Com item (linha dentro de uma lista): saídas + alterar minutos + remover.
+     */
+    public static List<Opt> options(Activity a, FenixParser.Timetable tt, String url,
+                                    Store.UserList list, Store.Item item, Runnable changed) {
+        List<Opt> out = new ArrayList<>();
+        for (int dep : depOrder(tt)) {
+            out.add(new Opt(Schedule.sentidoLabel(tt, dep), () -> a.startActivity(new Intent(a, HorariosActivity.class)
+                    .putExtra("code", tt.code).putExtra("name", tt.name).putExtra("url", url).putExtra("dep", dep))));
+        }
+        if (item == null) {
+            out.add(new Opt("Adicionar a uma lista", () -> addToList(a, tt, url, changed)));
+        } else {
+            out.add(new Opt("Alterar minutos até o meu ponto, agora " + item.offset, () -> askOffset(a, item.offset, v -> {
+                item.offset = v;
+                Store.get(a).saveLists();
+                say(a, "Salvo: " + v + " minutos");
+                if (changed != null) changed.run();
+            })));
+            out.add(new Opt("Remover da lista", () -> {
+                list.items.remove(item);
+                Store.get(a).saveLists();
+                say(a, tt.code + " removida da lista");
+                if (changed != null) changed.run();
+            }));
+        }
+        return out;
+    }
+
+    /** Opções sem precisar dos horários agora (linha ainda não baixada): baixam na hora de usar. */
+    public static List<Opt> optionsLazy(Activity a, String code, String name, String url, Runnable changed) {
+        FenixParser.Timetable tt = new Repo(a).cached(code);
+        if (tt != null) {
+            tt.name = name;
+            return options(a, tt, url, null, null, changed);
+        }
+        List<Opt> out = new ArrayList<>();
+        out.add(new Opt("Ver as saídas da linha", () -> lineActions(a, code, name, url, null, null, changed)));
+        out.add(new Opt("Adicionar a uma lista", () -> withTimetable(a, code, name, url, t -> {
+            t.name = name;
+            addToList(a, t, url, changed);
+        })));
+        return out;
+    }
+
+    /** Janela da linha (toque duplo): as mesmas opções das ações do TalkBack. */
+    public static void lineActions(Activity a, String code, String name, String url,
+                                   Store.UserList list, Store.Item item, Runnable changed) {
+        withTimetable(a, code, name, url, tt -> {
+            tt.name = name;
+            List<Opt> opts = options(a, tt, url, list, item, changed);
+            String[] labels = new String[opts.size()];
+            for (int k = 0; k < labels.length; k++) labels[k] = opts.get(k).label;
             new AlertDialog.Builder(a)
                     .setTitle(code + " " + name)
-                    .setItems(opts.toArray(new String[0]), (d, w) -> {
-                        if (w < base) {
-                            Intent i = new Intent(a, HorariosActivity.class)
-                                    .putExtra("code", code).putExtra("name", name).putExtra("url", url)
-                                    .putExtra("dep", order.get(w));
-                            a.startActivity(i);
-                        } else if (item == null) {
-                            addToList(a, tt, url, changed);
-                        } else if (w == base) {
-                            askOffset(a, item.offset, v -> {
-                                item.offset = v;
-                                Store.get(a).saveLists();
-                                say(a, "Salvo: " + v + " minutos");
-                                if (changed != null) changed.run();
-                            });
-                        } else {
-                            list.items.remove(item);
-                            Store.get(a).saveLists();
-                            say(a, code + " removida da lista");
-                            if (changed != null) changed.run();
-                        }
-                    })
+                    .setItems(labels, (d, w) -> opts.get(w).run.run())
                     .setNegativeButton("Fechar", null)
                     .show();
         });
