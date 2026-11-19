@@ -23,6 +23,7 @@ public class AjudaActivity extends Activity {
             "2. Busque uma linha, toque nela e escolha Adicionar a uma lista.",
             "3. Escolha a saída que você pega e a lista.",
             "4. Informe quantos minutos o ônibus leva da saída até o seu ponto. Se você pega na própria saída, deixe 0.",
+            "Digite só o número de minutos, sem vírgula: 1 para um minuto, 30 para meia hora, 60 para uma hora, 75 para uma hora e quinze. O máximo é 300. Campo vazio vale 0.",
             "Com 0 minutos, a lista mostra o horário programado de saída. Use assim para as linhas que você pega no terminal ou no ponto de saída.",
 
             "#Minutos certos até o seu ponto",
