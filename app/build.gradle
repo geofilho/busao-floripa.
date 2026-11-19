@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'br.com.busfloripa'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'br.com.busfloripa'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '1.0'
+    }
+
+    // Chave fixa: cada APK novo instala por cima do anterior sem perder suas listas.
+    // Fica guardada em texto (base64) e é recriada aqui antes do build.
+    def ks = file('busfloripa.keystore')
+    if (!ks.exists()) {
+        ks.bytes = file('busfloripa.keystore.b64').text.replaceAll('\\s', '').decodeBase64()
+    }
+    signingConfigs {
+        app {
+            storeFile file('busfloripa.keystore')
+            storePassword 'busfloripa'
+            keyAlias 'busfloripa'
+            keyPassword 'busfloripa'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            signingConfig signingConfigs.app
+        }
+        debug {
+            signingConfig signingConfigs.app
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        encoding 'UTF-8'
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
