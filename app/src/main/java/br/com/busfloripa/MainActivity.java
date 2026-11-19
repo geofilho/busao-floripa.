@@ -253,8 +253,81 @@ public class MainActivity extends Activity {
         });
     }
 
+    private static final int REQ_SAVE = 51, REQ_OPEN = 52;
+
+    @Override protected void onActivityResult(int req, int result, Intent data) {
+        super.onActivityResult(req, result, data);
+        if (result != RESULT_OK || data == null || data.getData() == null) return;
+        android.net.Uri uri = data.getData();
+        if (req == REQ_SAVE) saveBackup(uri);
+        else if (req == REQ_OPEN) openBackup(uri);
+    }
+
+    private void saveBackup(android.net.Uri uri) {
+        try (java.io.OutputStream out = getContentResolver().openOutputStream(uri)) {
+            if (out == null) throw new java.io.IOException("não abriu o arquivo");
+            out.write(Store.get(this).exportBackup().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            int n = Store.get(this).lists().size(), loc = 0;
+            for (Store.UserList l : Store.get(this).lists()) if (l.hasLoc) loc++;
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Backup salvo")
+                    .setMessage((n == 1 ? "1 lista salva" : n + " listas salvas")
+                            + (loc == 0 ? "." : ", " + (loc == 1 ? "1 com local GPS." : loc + " com local GPS.")))
+                    .setPositiveButton("Fechar", null)
+                    .show();
+        } catch (Exception e) {
+            Ui.say(this, "Não foi possível salvar o backup: " + e.getMessage());
+        }
+    }
+
+    private void openBackup(android.net.Uri uri) {
+        List<Store.UserList> from;
+        try (java.io.InputStream in = getContentResolver().openInputStream(uri)) {
+            if (in == null) throw new java.io.IOException("não abriu o arquivo");
+            java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();
+            byte[] b = new byte[8192];
+            int n;
+            while ((n = in.read(b)) > 0 && buf.size() < 5_000_000) buf.write(b, 0, n);
+            from = Store.readBackup(buf.toString("UTF-8"));
+        } catch (Exception e) {
+            String m = e.getMessage();
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Não foi possível restaurar")
+                    .setMessage(m != null && m.startsWith("Este arquivo") ? m + "."
+                            : "O arquivo escolhido não é um backup válido do Busão Floripa.")
+                    .setPositiveButton("Fechar", null)
+                    .show();
+            return;
+        }
+        if (from.isEmpty()) { Ui.say(this, "O backup não tem nenhuma lista"); return; }
+        StringBuilder names = new StringBuilder();
+        for (Store.UserList l : from) names.append(names.length() == 0 ? "" : ", ").append(l.name);
+        int mine = Store.get(this).lists().size();
+        String msg = "O backup tem " + (from.size() == 1 ? "1 lista: " : from.size() + " listas: ") + names + ".";
+        android.app.AlertDialog.Builder d = new android.app.AlertDialog.Builder(this).setTitle("Restaurar backup");
+        if (mine == 0) {
+            d.setMessage(msg).setPositiveButton("Restaurar", (x, w) -> applyBackup(from, true));
+        } else {
+            d.setMessage(msg + " Você tem " + (mine == 1 ? "1 lista" : mine + " listas") + " agora.\n\n"
+                            + "Substituir apaga as suas listas atuais e coloca as do backup. "
+                            + "Juntar acrescenta as do backup; lista com o mesmo nome é trocada pela do backup.")
+                    .setPositiveButton("Substituir", (x, w) -> applyBackup(from, true))
+                    .setNeutralButton("Juntar", (x, w) -> applyBackup(from, false));
+        }
+        d.setNegativeButton("Cancelar", null).show();
+    }
+
+    private void applyBackup(List<Store.UserList> from, boolean replace) {
+        Store.get(this).applyBackup(from, replace);
+        renderLists();
+        int n = Store.get(this).lists().size();
+        Ui.say(this, "Backup restaurado. Você tem " + (n == 1 ? "1 lista" : n + " listas") + ".");
+    }
+
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 1, 0, "Atualizar agora");
+        menu.add(0, 4, 0, "Fazer backup");
+        menu.add(0, 5, 0, "Restaurar backup");
         menu.add(0, 3, 0, "Diagnóstico");
         menu.add(0, 2, 0, "Como usar");
         return true;
@@ -272,20 +345,23 @@ public class MainActivity extends Activity {
             return true;
         }
         if (item.getItemId() == 2) {
-            new android.app.AlertDialog.Builder(this)
-                    .setTitle("Como usar")
-                    .setMessage("1. Crie uma lista, por exemplo Saídas de casa.\n"
-                            + "2. Busque uma linha, toque nela e escolha Adicionar a uma lista.\n"
-                            + "3. Informe quantos minutos o ônibus leva da saída até o seu ponto.\n"
-                            + "4. Abra a lista: os ônibus aparecem na ordem de chegada.\n\n"
-                            + "Os horários ficam salvos no celular e funcionam sem internet. "
-                            + "Na primeira vez que você abre o app no dia, ele atualiza tudo; se der problema, avisa "
-                            + "e mostra os detalhes em Mais opções, Diagnóstico. "
-                            + "Nas opções da lista você pode ligar a lista a um local: "
-                            + "quando estiver perto dele, ela aparece primeiro.\n\n"
-                            + "Horários: Consórcio Fênix. Podem mudar; confira em caso de dúvida.")
-                    .setPositiveButton("Fechar", null)
-                    .show();
+            startActivity(new Intent(this, AjudaActivity.class));
+            return true;
+        }
+        if (item.getItemId() == 4) {
+            if (Store.get(this).lists().isEmpty()) { Ui.say(this, "Você ainda não tem listas para salvar"); return true; }
+            Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType("application/json")
+                    .putExtra(Intent.EXTRA_TITLE, "busao-floripa-backup-" + java.time.LocalDate.now() + ".json");
+            startActivityForResult(i, REQ_SAVE);
+            return true;
+        }
+        if (item.getItemId() == 5) {
+            Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType("*/*");
+            startActivityForResult(i, REQ_OPEN);
             return true;
         }
         return super.onOptionsItemSelected(item);

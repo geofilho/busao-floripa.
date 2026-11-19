@@ -25,6 +25,10 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
   mudou, horários que não fazem sentido, saída de uma lista que sumiu), o app avisa
   e mantém os horários antigos. Detalhes em Mais opções, Diagnóstico, com botão
   para copiar o relatório.
+- **Backup:** Mais opções, Fazer backup salva num arquivo .json todas as listas, com
+  linhas, minutos, local GPS e link do Google Maps. Restaurar backup traz de volta
+  (substituindo ou juntando com as listas atuais).
+- **Ações do TalkBack:** nas linhas da busca e das listas, as mesmas opções da janela.
 - **Feriados:** feriados nacionais, Sexta-feira Santa e 23/03 usam a tabela de
   domingo. Na lista, o botão "Tabela de hoje" troca a tabela manualmente.
 

@@ -24,5 +24,6 @@
         <activity android:name=".ListaActivity" android:parentActivityName=".MainActivity" />
         <activity android:name=".HorariosActivity" />
         <activity android:name=".DiagnosticoActivity" />
+        <activity android:name=".AjudaActivity" />
     </application>
 </manifest>

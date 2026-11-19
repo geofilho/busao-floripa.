@@ -173,46 +173,81 @@ public final class Store {
 
     private static final String LISTS_FILE = "listas.json";
 
+    private static List<UserList> listsFromJson(JSONArray a) throws org.json.JSONException {
+        List<UserList> out = new ArrayList<>();
+        for (int i = 0; i < a.length(); i++) {
+            JSONObject o = a.getJSONObject(i);
+            UserList l = new UserList();
+            l.id = o.getString("id"); l.name = o.getString("name");
+            l.hasLoc = o.optBoolean("hasLoc"); l.maps = o.optString("maps"); l.lat = o.optDouble("lat", 0); l.lon = o.optDouble("lon", 0);
+            JSONArray items = o.getJSONArray("items");
+            for (int j = 0; j < items.length(); j++) {
+                JSONObject x = items.getJSONObject(j);
+                Item it = new Item();
+                it.code = x.getString("code"); it.name = x.getString("name"); it.url = x.getString("url");
+                it.dep = x.getString("dep"); it.depIdx = x.optInt("depIdx"); it.offset = x.optInt("offset");
+                l.items.add(it);
+            }
+            out.add(l);
+        }
+        return out;
+    }
+
+    private static JSONArray listsToJson(List<UserList> lists) throws org.json.JSONException {
+        JSONArray a = new JSONArray();
+        for (UserList l : lists) {
+            JSONArray items = new JSONArray();
+            for (Item it : l.items)
+                items.put(new JSONObject().put("code", it.code).put("name", it.name).put("url", it.url)
+                        .put("dep", it.dep).put("depIdx", it.depIdx).put("offset", it.offset));
+            JSONObject o = new JSONObject().put("id", l.id).put("name", l.name).put("hasLoc", l.hasLoc).put("maps", l.maps).put("items", items);
+            if (l.hasLoc) o.put("lat", l.lat).put("lon", l.lon);
+            a.put(o);
+        }
+        return a;
+    }
+
     public synchronized List<UserList> lists() {
         if (lists != null) return lists;
         lists = new ArrayList<>();
         String s = read(LISTS_FILE);
         if (s == null) return lists;
-        try {
-            JSONArray a = new JSONArray(s);
-            for (int i = 0; i < a.length(); i++) {
-                JSONObject o = a.getJSONObject(i);
-                UserList l = new UserList();
-                l.id = o.getString("id"); l.name = o.getString("name");
-                l.hasLoc = o.optBoolean("hasLoc"); l.maps = o.optString("maps"); l.lat = o.optDouble("lat", 0); l.lon = o.optDouble("lon", 0);
-                JSONArray items = o.getJSONArray("items");
-                for (int j = 0; j < items.length(); j++) {
-                    JSONObject x = items.getJSONObject(j);
-                    Item it = new Item();
-                    it.code = x.getString("code"); it.name = x.getString("name"); it.url = x.getString("url");
-                    it.dep = x.getString("dep"); it.depIdx = x.optInt("depIdx"); it.offset = x.optInt("offset");
-                    l.items.add(it);
-                }
-                lists.add(l);
-            }
-        } catch (Exception ignored) { }
+        try { lists.addAll(listsFromJson(new JSONArray(s))); } catch (Exception ignored) { }
         return lists;
     }
 
     public synchronized void saveLists() {
-        try {
-            JSONArray a = new JSONArray();
-            for (UserList l : lists()) {
-                JSONArray items = new JSONArray();
-                for (Item it : l.items)
-                    items.put(new JSONObject().put("code", it.code).put("name", it.name).put("url", it.url)
-                            .put("dep", it.dep).put("depIdx", it.depIdx).put("offset", it.offset));
-                JSONObject o = new JSONObject().put("id", l.id).put("name", l.name).put("hasLoc", l.hasLoc).put("maps", l.maps).put("items", items);
-                if (l.hasLoc) o.put("lat", l.lat).put("lon", l.lon);
-                a.put(o);
+        try { write(LISTS_FILE, listsToJson(lists()).toString()); } catch (Exception ignored) { }
+    }
+
+    // ---------- backup ----------
+
+    /** Texto do backup: todas as listas, com linhas, minutos, local GPS e link do Google Maps. */
+    public synchronized String exportBackup() throws org.json.JSONException {
+        return new JSONObject().put("app", "busao-floripa").put("versao", 1)
+                .put("criado", java.time.LocalDateTime.now().toString())
+                .put("listas", listsToJson(lists())).toString(2);
+    }
+
+    /** Lê um backup sem aplicar. Lança erro se o arquivo não for um backup válido. */
+    public static List<UserList> readBackup(String text) throws Exception {
+        JSONObject o = new JSONObject(text);
+        if (!"busao-floripa".equals(o.optString("app"))) throw new Exception("Este arquivo não é um backup do Busão Floripa");
+        return listsFromJson(o.getJSONArray("listas"));
+    }
+
+    /** Aplica um backup. Substituir: troca tudo. Juntar: acrescenta, e a lista com o mesmo nome é trocada. */
+    public synchronized void applyBackup(List<UserList> from, boolean replace) {
+        List<UserList> cur = lists();
+        if (replace) cur.clear();
+        for (UserList l : from) {
+            for (int i = cur.size() - 1; i >= 0; i--) {
+                UserList c = cur.get(i);
+                if (c.id.equals(l.id) || c.name.equalsIgnoreCase(l.name)) cur.remove(i);
             }
-            write(LISTS_FILE, a.toString());
-        } catch (Exception ignored) { }
+            cur.add(l);
+        }
+        saveLists();
     }
 
     public UserList list(String id) {
