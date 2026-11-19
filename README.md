@@ -26,9 +26,9 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
   próxima abertura (no mínimo 30 minutos depois). Dia sem abrir o app, sem atualização.
 - **Aviso e diagnóstico:** se a atualização tiver problema (site fora do ar, página
   mudou, horários que não fazem sentido, saída de uma lista que sumiu), o app avisa
-  e mantém os horários antigos. Detalhes em Mais opções, Diagnóstico, com botão
+  e mantém os horários antigos. Detalhes em Mais opções, Dados, Diagnóstico, com botão
   para copiar o relatório.
-- **Backup:** Mais opções, Fazer backup salva num arquivo .json todas as listas, com
+- **Backup:** Mais opções, Dados, Fazer backup salva num arquivo .json todas as listas, com
   linhas, minutos, local GPS e link do Google Maps. Restaurar backup traz de volta
   (substituindo ou juntando com as listas atuais).
 - **Ações do TalkBack:** nas linhas da busca e das listas, as mesmas opções da janela.

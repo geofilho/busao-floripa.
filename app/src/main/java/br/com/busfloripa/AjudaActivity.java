@@ -14,6 +14,10 @@ public class AjudaActivity extends Activity {
 
     /** "#" no início = título. */
     private static final String[] TEXT = {
+            "#Menu Mais opções",
+            "No canto de cima, à direita, ficam três opções: Atualizar agora, Como usar e Dados.",
+            "Dados abre Fazer backup, Restaurar backup e Diagnóstico.",
+
             "#Tela inicial",
             "No topo ficam suas listas. Embaixo, a busca de linhas por número ou nome, sem precisar de acento.",
             "Com uma busca feita, o gesto de voltar limpa a busca.",
@@ -53,11 +57,11 @@ public class AjudaActivity extends Activity {
 
             "#Quando der problema",
             "Se a atualização falhar, aparece um aviso e os horários antigos continuam salvos.",
-            "Em Mais opções, Diagnóstico, toque em Copiar relatório e envie o texto para quem cuida do app.",
+            "Em Mais opções, Dados, Diagnóstico, toque em Copiar relatório e envie o texto para quem cuida do app.",
 
             "#Backup",
-            "Mais opções, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais GPS e os links do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
-            "Mais opções, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
+            "Mais opções, Dados, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais GPS e os links do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
+            "Mais opções, Dados, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
 
             "#Sobre os horários",
             "Os horários vêm do site do Consórcio Fênix e podem mudar. Em caso de dúvida, confira no site.",

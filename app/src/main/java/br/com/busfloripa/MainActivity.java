@@ -139,7 +139,7 @@ public class MainActivity extends Activity {
         repo.lines(force, (lines, err) -> {
             if (lines == null) {
                 status.setText("Não foi possível carregar as linhas. " + err
-                        + ". Conecte à internet e use o menu Mais opções, Atualizar linhas.");
+                        + ". Conecte à internet e use Mais opções, Atualizar agora.");
                 return;
             }
             all.clear();
@@ -326,10 +326,12 @@ public class MainActivity extends Activity {
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 1, 0, "Atualizar agora");
-        menu.add(0, 4, 0, "Fazer backup");
-        menu.add(0, 5, 0, "Restaurar backup");
-        menu.add(0, 3, 0, "Diagnóstico");
         menu.add(0, 2, 0, "Como usar");
+        android.view.SubMenu dados = menu.addSubMenu(0, 6, 0, "Dados");
+        dados.setHeaderTitle("Dados");
+        dados.add(0, 4, 0, "Fazer backup");
+        dados.add(0, 5, 0, "Restaurar backup");
+        dados.add(0, 3, 0, "Diagnóstico");
         return true;
     }
 
