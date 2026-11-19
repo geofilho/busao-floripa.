@@ -144,12 +144,15 @@ public class HorariosActivity extends Activity {
             });
             return;
         }
+        String depName = tt.departures.get(depIdx).name;
+        List<String> stops = Schedule.itineraryFrom(tt.itinerary, depName);
         List<String> items = new ArrayList<>();
-        for (int i = 0; i < tt.itinerary.size(); i++) items.add((i + 1) + ". " + tt.itinerary.get(i));
+        for (int i = 0; i < stops.size(); i++) items.add((i + 1) + ". " + stops.get(i));
         ListView lv = new ListView(this);
         lv.setAdapter(Ui.adapter(this, items));
         new android.app.AlertDialog.Builder(this)
-                .setTitle("Itinerário da " + code + ", ida e volta, " + items.size() + " trechos")
+                .setTitle("Itinerário da " + code + (stops == tt.itinerary ? ", ida e volta, "
+                        : " saindo de " + depName + ", ida e volta, ") + items.size() + " trechos")
                 .setView(lv)
                 .setPositiveButton("Fechar", null)
                 .show();

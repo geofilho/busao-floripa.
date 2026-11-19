@@ -44,6 +44,7 @@ public class AjudaActivity extends Activity {
 
             "#Itinerário",
             "Na tela de horários de uma linha, o botão Itinerário mostra, em ordem, as ruas e lugares por onde ela passa, na ida e na volta. O site do Fênix não informa os pontos de parada, só as ruas.",
+            "A lista começa na saída que você escolheu: no terminal, ou no ponto final do bairro. Se o app não conseguir achar a saída na lista, mostra na ordem do site.",
 
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",

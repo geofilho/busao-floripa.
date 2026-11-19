@@ -164,4 +164,43 @@ public final class Schedule {
         return n % 2 == 1 ? s.get(n / 2) : Math.round((s.get(n / 2 - 1) + s.get(n / 2)) / 2f);
     }
 
+
+    // ---------- Itinerário a partir da saída escolhida ----------
+
+    private static final String[] TERMINAIS = {"ticen", "titri", "tilag", "tirio", "tican", "tisan", "tisac", "ticap", "tijar"};
+
+    /**
+     * O site dá uma volta completa só (começa e termina no mesmo lugar). Reordena para começar
+     * na saída escolhida: terminal pelo nome, saída de bairro pelo "(PONTO FINAL)".
+     * Se não der para achar o começo, devolve como veio.
+     */
+    public static List<String> itineraryFrom(List<String> it, String depName) {
+        if (it.size() < 3) return it;
+        List<String> loop = new ArrayList<>(it);
+        if (!FenixParser.fold(loop.get(0)).equals(FenixParser.fold(loop.get(loop.size() - 1)))) return it;
+        loop.remove(loop.size() - 1);
+        String dep = " " + FenixParser.fold(depName) + " ";
+        int start = -1;
+        for (String t : TERMINAIS) {
+            if (!dep.contains(" " + t + " ")) continue;
+            for (int i = 0; i < loop.size() && start < 0; i++)
+                if ((" " + FenixParser.fold(loop.get(i)) + " ").contains(" " + t + " ")) start = i;
+            break;
+        }
+        if (start < 0 && !isCentro(depName)) {
+            for (int i = 0; i < loop.size() && start < 0; i++)
+                if (FenixParser.fold(loop.get(i)).contains("ponto final")) start = i;
+        }
+        if (start < 0) {
+            String d = FenixParser.fold(depName);
+            for (int i = 0; i < loop.size() && start < 0 && d.length() >= 4; i++)
+                if (FenixParser.fold(loop.get(i)).contains(d)) start = i;
+        }
+        if (start < 0) return it;
+        List<String> out = new ArrayList<>(loop.subList(start, loop.size()));
+        out.addAll(loop.subList(0, start));
+        out.add(loop.get(start));
+        return out;
+    }
+
 }

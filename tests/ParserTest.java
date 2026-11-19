@@ -64,6 +64,16 @@ public class ParserTest {
         List<String> dup = FenixParser.parseLine("<h4>Itinerário</h4><ol><li>X</li><li>Y</li></ol><h4>Itinerário</h4><ol><li>X</li><li>Y</li></ol>").itinerary;
         check(dup.size() == 2, "itinerário repetido fica uma vez");
 
+        // Itinerário começando na saída escolhida
+        List<String> volta = java.util.Arrays.asList("TICEN - TERMINAL DE INTEGRAÇÃO DO CENTRO", "PONTE COLOMBO SALLES",
+                "RUA CAMPOLINO ALVES (PONTO FINAL)", "PONTE PEDRO IVO", "TICEN - TERMINAL DE INTEGRAÇÃO DO CENTRO");
+        check(Schedule.itineraryFrom(volta, "TICEN - Plataforma B - Box 9").equals(volta), "itinerário da saída TICEN igual ao site");
+        List<String> doBairro = Schedule.itineraryFrom(volta, "Abraão");
+        check(doBairro.get(0).contains("PONTO FINAL") && doBairro.get(doBairro.size() - 1).contains("PONTO FINAL")
+                && doBairro.get(2).startsWith("TICEN") && doBairro.size() == 5, "itinerário da saída do bairro começa no ponto final " + doBairro);
+        List<String> semVolta = java.util.Arrays.asList("A", "B", "C");
+        check(Schedule.itineraryFrom(semVolta, "Abraão") == semVolta, "itinerário que não é volta fica como veio");
+
         // Formato B: blocos em div com títulos de dia e de saída, em sequência
         StringBuilder B = new StringBuilder();
         String[] dn = {"Dias Úteis", "Sábado", "Domingos e Feriados"};
