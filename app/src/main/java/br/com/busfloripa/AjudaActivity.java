@@ -23,17 +23,24 @@ public class AjudaActivity extends Activity {
             "2. Busque uma linha, toque nela e escolha Adicionar a uma lista.",
             "3. Escolha a saída que você pega e a lista.",
             "4. Informe quantos minutos o ônibus leva da saída até o seu ponto. Se você pega na própria saída, deixe 0.",
+            "Com 0 minutos, a lista mostra o horário programado de saída. Use assim para as linhas que você pega no terminal ou no ponto de saída.",
+
+            "#Minutos certos até o seu ponto",
+            "Se você pega o ônibus em outro ponto, deixe 0 ao adicionar. Quando o ônibus chegar no seu ponto, use O ônibus chegou agora naquela linha da lista.",
+            "O app vê a que horas ele saiu, calcula o tempo real de viagem e passa a mostrar a chegada no seu ponto. A cada vez que você marca, ele usa a média das últimas medições.",
+            "Se ele não tiver certeza de qual ônibus chegou, pergunta, mostrando os horários de saída.",
+            "Para voltar ao horário programado, use Alterar minutos e coloque 0.",
 
             "#Dentro da lista",
             "Cada linha já mostra quando o ônibus chega no seu ponto, da mais próxima para a mais distante.",
-            "Toque numa linha para ver os horários de cada saída, alterar os minutos ou remover da lista.",
+            "Toque numa linha para ver os horários de cada saída, marcar que o ônibus chegou, alterar os minutos ou remover da lista.",
             "O botão Tabela de hoje troca entre dias úteis, sábado e domingo. Use em feriados que o app não conhece.",
             "Em Opções da lista você renomeia, exclui e liga a lista a um local: onde você está agora ou o link do Google Maps do ponto. Perto desse local, a lista aparece primeiro na tela inicial.",
 
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",
             "Na busca de linhas: uma ação para cada saída e Adicionar a uma lista.",
-            "Nas suas listas: uma ação para cada saída, Alterar minutos até o meu ponto e Remover da lista.",
+            "Nas suas listas: uma ação para cada saída, O ônibus chegou agora, Alterar minutos até o meu ponto e Remover da lista.",
 
             "#Atualização",
             "Na primeira vez que você abre o app no dia, os horários são atualizados.",
@@ -45,7 +52,7 @@ public class AjudaActivity extends Activity {
             "Em Mais opções, Diagnóstico, toque em Copiar relatório e envie o texto para quem cuida do app.",
 
             "#Backup",
-            "Mais opções, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos, os locais GPS e os links do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
+            "Mais opções, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais GPS e os links do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
             "Mais opções, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
 
             "#Sobre os horários",

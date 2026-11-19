@@ -12,6 +12,9 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
   Tocar numa linha da lista: Sentido centro, Sentido bairro, Alterar minutos, Remover da lista.
 - **Minutos até o seu ponto:** ao adicionar, informe quantos minutos o ônibus leva
   da saída até onde você pega. O app soma e mostra a chegada no seu ponto.
+- **Minutos até o ponto:** 0 = horário programado de saída. Para pegar em outro
+  ponto, use "O ônibus chegou agora": o app mede o tempo real de viagem e usa a
+  mediana das últimas 5 medições.
 - **GPS:** em Opções da lista, ligue a lista a um local. Quando você estiver
   a até 500 m dali, ela aparece primeiro na tela inicial.
 - **Link do Google Maps:** em Opções da lista, cole o link compartilhado do ponto

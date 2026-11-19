@@ -124,4 +124,44 @@ public final class Schedule {
     public static String sentidoLabel(FenixParser.Timetable tt, int idx) {
         return "Saída " + tt.departures.get(idx).name;
     }
+
+    // ---------- "O ônibus chegou agora": descobrir o tempo real de viagem ----------
+
+    /**
+     * Saídas das últimas 2 horas, como minutos de viagem até agora (do mais curto ao mais longo).
+     * Ex.: agora 15:32 e saídas 15:20 e 15:00 -> [12, 32].
+     */
+    public static List<Integer> travelCandidates(FenixParser.Departure dep, LocalDateTime now, int todayType) {
+        int nowMin = now.getHour() * 60 + now.getMinute();
+        int yType = dayType(now.toLocalDate().minusDays(1));
+        List<Integer> out = new ArrayList<>();
+        for (FenixParser.Trip t : dep.days.get(todayType)) {
+            int v = nowMin - t.min;
+            if (v >= 0 && v <= 120 && !out.contains(v)) out.add(v);
+        }
+        for (FenixParser.Trip t : dep.days.get(yType)) {
+            if (t.min < 1440) continue;
+            int v = nowMin - (t.min - 1440);
+            if (v >= 0 && v <= 120 && !out.contains(v)) out.add(v);
+        }
+        Collections.sort(out);
+        return out;
+    }
+
+    /** Escolhe o candidato que combina com o valor de referência; nulo se nenhum combina bem. */
+    public static Integer pickTravel(List<Integer> candidates, int ref) {
+        Integer best = null;
+        for (int c : candidates) if (best == null || Math.abs(c - ref) < Math.abs(best - ref)) best = c;
+        if (best == null) return null;
+        return Math.abs(best - ref) <= Math.max(5, ref / 2) ? best : null;
+    }
+
+    public static int median(List<Integer> v) {
+        List<Integer> s = new ArrayList<>(v);
+        Collections.sort(s);
+        int n = s.size();
+        if (n == 0) return 0;
+        return n % 2 == 1 ? s.get(n / 2) : Math.round((s.get(n / 2 - 1) + s.get(n / 2)) / 2f);
+    }
+
 }

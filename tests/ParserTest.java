@@ -95,6 +95,15 @@ public class ParserTest {
         check(Schedule.direction(ta, 0) == Schedule.CENTRO && Schedule.direction(ta, 1) == Schedule.BAIRRO, "sentido de cada saída");
         check(Schedule.sentidoLabel(ta, 1).equals("Saída TICEN - Plataforma B - Box 9"), "rótulo só com a saída (" + Schedule.sentidoLabel(ta, 1) + ")");
 
+        // O ônibus chegou agora
+        Departure cal = new Departure("Saco Grande");
+        for (int m : new int[]{14 * 60, 14 * 60 + 40, 15 * 60 + 20, 15 * 60 + 40}) cal.days.get(0).add(new Trip(m, ""));
+        List<Integer> cands = Schedule.travelCandidates(cal, LocalDateTime.of(2026, 11, 19, 15, 32), 0);
+        check(cands.equals(java.util.Arrays.asList(12, 52, 92)), "chegou agora: candidatos " + cands);
+        check(Integer.valueOf(12).equals(Schedule.pickTravel(cands, 10)), "chegou agora: escolhe 12 perto da referência 10");
+        check(Schedule.pickTravel(cands, 30) == null, "chegou agora: nada combina com 30, pergunta ao usuário");
+        check(Schedule.median(java.util.Arrays.asList(12, 15, 13)) == 13, "média (mediana) das medições");
+
         // Links do Google Maps
         double[] g1 = br.com.busfloripa.MapsLink.find("https://www.google.com/maps/place/Ponto/@-27.5953,-48.5482,17z/data=!3m1!4b1!4m6!3m5!1s0x0:0x0!8m2!3d-27.5961!4d-48.5491");
         check(g1 != null && g1[0] == -27.5961 && g1[1] == -48.5491, "Maps: usa a posição exata do ponto (!3d!4d)");

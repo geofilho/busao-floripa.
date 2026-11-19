@@ -20,6 +20,8 @@ public final class Store {
     public static final class Item {
         public String code, name, url, dep;
         public int depIdx, offset;
+        /** Tempos medidos com "O ônibus chegou agora" (últimos 5). */
+        public final List<Integer> samples = new ArrayList<>();
         public String title() { return code + " " + name; }
     }
 
@@ -186,6 +188,8 @@ public final class Store {
                 Item it = new Item();
                 it.code = x.getString("code"); it.name = x.getString("name"); it.url = x.getString("url");
                 it.dep = x.getString("dep"); it.depIdx = x.optInt("depIdx"); it.offset = x.optInt("offset");
+                JSONArray sm = x.optJSONArray("samples");
+                if (sm != null) for (int k = 0; k < sm.length(); k++) it.samples.add(sm.optInt(k));
                 l.items.add(it);
             }
             out.add(l);
@@ -198,8 +202,13 @@ public final class Store {
         for (UserList l : lists) {
             JSONArray items = new JSONArray();
             for (Item it : l.items)
+            {
+                JSONArray sm = new JSONArray();
+                for (int v : it.samples) sm.put(v);
                 items.put(new JSONObject().put("code", it.code).put("name", it.name).put("url", it.url)
-                        .put("dep", it.dep).put("depIdx", it.depIdx).put("offset", it.offset));
+                        .put("dep", it.dep).put("depIdx", it.depIdx).put("offset", it.offset)
+                        .put("samples", sm));
+            }
             JSONObject o = new JSONObject().put("id", l.id).put("name", l.name).put("hasLoc", l.hasLoc).put("maps", l.maps).put("items", items);
             if (l.hasLoc) o.put("lat", l.lat).put("lon", l.lon);
             a.put(o);

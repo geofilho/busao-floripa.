@@ -45,6 +45,12 @@ public final class Ui {
 
     public static void askText(Activity a, String title, String message, String initial, String hint,
                                boolean number, Consumer<String> ok) {
+        askText(a, title, message, initial, hint, number, null, null, ok);
+    }
+
+    /** Igual, com um terceiro botão opcional (extraLabel / extra). */
+    public static void askText(Activity a, String title, String message, String initial, String hint,
+                               boolean number, String extraLabel, Runnable extra, Consumer<String> ok) {
         LinearLayout box = new LinearLayout(a);
         box.setOrientation(LinearLayout.VERTICAL);
         int p = dp(a, 20);
@@ -61,13 +67,14 @@ public final class Ui {
         input.setSingleLine(true);
         if (initial != null) { input.setText(initial); input.setSelection(initial.length()); }
         box.addView(input, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        AlertDialog d = new AlertDialog.Builder(a)
+        AlertDialog.Builder bld = new AlertDialog.Builder(a)
                 .setTitle(title)
                 .setMessage(message)
                 .setView(box)
                 .setPositiveButton("Salvar", (di, w) -> ok.accept(input.getText().toString().trim()))
-                .setNegativeButton("Cancelar", null)
-                .create();
+                .setNegativeButton("Cancelar", null);
+        if (extraLabel != null && extra != null) bld.setNeutralButton(extraLabel, (di, w) -> extra.run());
+        AlertDialog d = bld.create();
         input.setOnEditorActionListener((v, id, ev) -> {
             if (id == EditorInfo.IME_ACTION_DONE) {
                 d.dismiss();
@@ -80,15 +87,60 @@ public final class Ui {
         input.requestFocus();
     }
 
+    private static final String MEDIR = " Se você pega em outro ponto, deixe 0 e, quando o ônibus chegar lá, use O ônibus chegou agora: o app mede o tempo real e ajusta sozinho.";
+
+    private static int parseMinutes(String s) {
+        try { return Math.max(0, Math.min(300, Integer.parseInt(s.trim()))); } catch (NumberFormatException e) { return 0; }
+    }
+
     public static void askOffset(Activity a, int current, Consumer<Integer> ok) {
         askText(a, "Minutos até o seu ponto",
                 "Quantos minutos o ônibus leva da saída até o ponto onde você pega? "
-                        + "Se você pega no ponto de saída, deixe 0.",
-                String.valueOf(current), "Minutos, por exemplo 10", true, s -> {
-                    int v = 0;
-                    try { v = Math.max(0, Math.min(300, Integer.parseInt(s))); } catch (NumberFormatException ignored) { }
-                    ok.accept(v);
-                });
+                        + "Com 0, a lista mostra o horário programado de saída." + MEDIR,
+                String.valueOf(current), "Minutos, por exemplo 10", true, s -> ok.accept(parseMinutes(s)));
+    }
+
+    /** "O ônibus chegou agora": mede o tempo real de viagem e ajusta os minutos da linha. */
+    public static void busArrived(Activity a, Store.Item item, FenixParser.Timetable tt, Runnable changed) {
+        int idx = tt.indexOf(item.dep);
+        if (idx < 0 && item.depIdx < tt.departures.size()) idx = item.depIdx;
+        if (idx < 0) { say(a, "Não encontrei a saída desta linha"); return; }
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        List<Integer> cands = Schedule.travelCandidates(tt.departures.get(idx), now,
+                Schedule.dayType(now.toLocalDate()));
+        if (cands.isEmpty()) {
+            new AlertDialog.Builder(a).setTitle("O ônibus chegou agora")
+                    .setMessage("Nenhum " + item.code + " saiu de " + item.dep + " nas últimas 2 horas. "
+                            + "Confira se é a linha e o sentido certos.")
+                    .setPositiveButton("Fechar", null).show();
+            return;
+        }
+        Integer ref = !item.samples.isEmpty() ? Integer.valueOf(Schedule.median(item.samples))
+                : item.offset > 0 ? Integer.valueOf(item.offset) : null;
+        Integer pick = ref == null ? null : Schedule.pickTravel(cands, ref);
+        Consumer<Integer> record = v -> {
+            item.samples.add(v);
+            while (item.samples.size() > 5) item.samples.remove(0);
+            item.offset = Schedule.median(item.samples);
+            Store.get(a).saveLists();
+            int n = item.samples.size();
+            say(a, "Anotado: " + v + " minutos desta vez. Usando " + item.offset + " minutos"
+                    + (n > 1 ? ", a média de " + n + " medições." : "."));
+            if (changed != null) changed.run();
+        };
+        if (pick != null) { record.accept(pick); return; }
+        int max = Math.min(6, cands.size());
+        String[] labels = new String[max];
+        for (int k = 0; k < max; k++) {
+            int v = cands.get(k);
+            labels[k] = "Saiu às " + Schedule.clock(now.getHour() * 60 + now.getMinute() - v) + ", "
+                    + v + (v == 1 ? " minuto" : " minutos") + " de viagem";
+        }
+        new AlertDialog.Builder(a)
+                .setTitle("Qual destes chegou?")
+                .setItems(labels, (d, w) -> record.accept(cands.get(w)))
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     // ---------- listas ----------
@@ -178,12 +230,11 @@ public final class Ui {
         if (item == null) {
             out.add(new Opt("Adicionar a uma lista", () -> addToList(a, tt, url, changed)));
         } else {
-            out.add(new Opt("Alterar minutos até o meu ponto, agora " + item.offset, () -> askOffset(a, item.offset, v -> {
-                item.offset = v;
-                Store.get(a).saveLists();
-                say(a, "Salvo: " + v + " minutos");
-                if (changed != null) changed.run();
-            })));
+            out.add(new Opt("O ônibus chegou agora", () -> busArrived(a, item, tt, changed)));
+            int n = item.samples.size();
+            out.add(new Opt("Alterar minutos até o meu ponto, agora " + item.offset
+                    + (n == 0 ? "" : n == 1 ? ", medido 1 vez" : ", medido " + n + " vezes"),
+                    () -> askOffset(a, item.offset, v -> setMinutes(a, item, v, changed))));
             out.add(new Opt("Remover da lista", () -> {
                 list.items.remove(item);
                 Store.get(a).saveLists();
@@ -192,6 +243,15 @@ public final class Ui {
             }));
         }
         return out;
+    }
+
+    /** Minutos digitados ou estimados. Valor diferente do atual descarta as medições antigas. */
+    static void setMinutes(Activity a, Store.Item item, int v, Runnable changed) {
+        if (v != item.offset) item.samples.clear();
+        item.offset = v;
+        Store.get(a).saveLists();
+        say(a, "Salvo: " + v + (v == 1 ? " minuto" : " minutos"));
+        if (changed != null) changed.run();
     }
 
     /** Opções sem precisar dos horários agora (linha ainda não baixada): baixam na hora de usar. */
