@@ -68,6 +68,7 @@ public class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         renderLists();
+        dailyUpdate();
         boolean anyLoc = false;
         for (Store.UserList l : Store.get(this).lists()) anyLoc |= l.hasLoc;
         if (anyLoc && Loc.granted(this)) {
@@ -77,6 +78,56 @@ public class MainActivity extends Activity {
                 renderLists();
             });
         }
+    }
+
+    /** Primeira abertura do dia: atualiza tudo. Sem internet, tenta de novo na próxima abertura. */
+    private void dailyUpdate() {
+        if (!Updater.shouldRun(this)) return;
+        status.setText("Atualizando os horários do dia…");
+        Updater.run(this, r -> onUpdated(r, false));
+    }
+
+    private void onUpdated(Updater.Report r, boolean manual) {
+        if (isFinishing() || isDestroyed()) return;
+        all.clear();
+        all.addAll(Store.get(this).loadLines());
+        all.sort(MainActivity::byNumber);
+        filter();
+        renderLists();
+        searchStatus = false;
+        if (r.noInternet) {
+            status.setText(r.summary());
+            if (manual) problemDialog(r);
+            return;
+        }
+        if (r.errors > 0 || r.warnings > 0) {
+            status.setText(r.summary());
+            problemDialog(r);
+        } else {
+            status.setText(r.summary());
+            if (manual) Ui.say(this, r.summary());
+        }
+    }
+
+    /** Aviso de que a atualização teve problemas, com os primeiros itens e o caminho para o diagnóstico. */
+    private void problemDialog(Updater.Report r) {
+        StringBuilder msg = new StringBuilder(r.summary());
+        int n = 0;
+        for (String l : r.lines) {
+            if (!l.startsWith("Erro") && !l.startsWith("Atenção")) continue;
+            if (n++ == 3) { msg.append("\n\nVeja o resto no diagnóstico."); break; }
+            msg.append("\n\n").append(l);
+        }
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(r.noInternet ? "Sem internet" : "Não foi possível atualizar")
+                .setMessage(msg.toString())
+                .setPositiveButton("Ver diagnóstico", (d, w) -> openDiagnostico())
+                .setNegativeButton("Fechar", null)
+                .show();
+    }
+
+    private void openDiagnostico() {
+        startActivity(new Intent(this, DiagnosticoActivity.class));
     }
 
     private void loadLines(boolean force) {
@@ -119,7 +170,7 @@ public class MainActivity extends Activity {
         super.onBackPressed();
     }
 
-    private boolean quiet;
+    private boolean quiet, searchStatus;
 
     /** Limpa a busca em silêncio: o leitor de tela não fala "linha não encontrada" nem a contagem. */
     private void clearSearch() {
@@ -149,8 +200,13 @@ public class MainActivity extends Activity {
         rows.clear();
         for (FenixParser.Line l : shown) rows.add(l.code + ", " + l.name);
         adapter.notifyDataSetChanged();
-        if (all.isEmpty() || quiet) { if (quiet) status.setText(""); return; }
-        status.setText(q.isEmpty() ? "" : shown.isEmpty() ? "Nenhuma linha encontrada"
+        // Só mexe no aviso quando ele é da busca, para não apagar o aviso da atualização diária.
+        if (quiet || q.isEmpty() || all.isEmpty()) {
+            if (searchStatus) { status.setText(""); searchStatus = false; }
+            return;
+        }
+        searchStatus = true;
+        status.setText(shown.isEmpty() ? "Nenhuma linha encontrada"
                 : shown.size() == 1 ? "1 linha encontrada" : shown.size() + " linhas encontradas");
     }
 
@@ -194,15 +250,21 @@ public class MainActivity extends Activity {
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 1, 0, "Atualizar linhas");
+        menu.add(0, 1, 0, "Atualizar agora");
+        menu.add(0, 3, 0, "Diagnóstico");
         menu.add(0, 2, 0, "Como usar");
         return true;
     }
 
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == 1) {
-            status.setText("Atualizando linhas…");
-            loadLines(true);
+            if (Updater.isRunning()) { Ui.say(this, "A atualização já está em andamento"); return true; }
+            status.setText("Atualizando…");
+            Updater.run(this, r -> onUpdated(r, true));
+            return true;
+        }
+        if (item.getItemId() == 3) {
+            openDiagnostico();
             return true;
         }
         if (item.getItemId() == 2) {
@@ -213,6 +275,8 @@ public class MainActivity extends Activity {
                             + "3. Informe quantos minutos o ônibus leva da saída até o seu ponto.\n"
                             + "4. Abra a lista: os ônibus aparecem na ordem de chegada.\n\n"
                             + "Os horários ficam salvos no celular e funcionam sem internet. "
+                            + "Na primeira vez que você abre o app no dia, ele atualiza tudo; se der problema, avisa "
+                            + "e mostra os detalhes em Mais opções, Diagnóstico. "
                             + "Nas opções da lista você pode ligar a lista a um local: "
                             + "quando estiver perto dele, ela aparece primeiro.\n\n"
                             + "Horários: Consórcio Fênix. Podem mudar; confira em caso de dúvida.")

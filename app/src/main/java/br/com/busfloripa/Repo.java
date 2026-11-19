@@ -21,8 +21,6 @@ public final class Repo {
 
     public interface Callback<T> { void done(T result, String error); }
 
-    private static final long LINES_MAX_AGE = 7L * 24 * 3600 * 1000;
-    private static final long TT_MAX_AGE = 3L * 24 * 3600 * 1000;
 
     private static final ExecutorService IO = Executors.newFixedThreadPool(2);
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
@@ -54,7 +52,8 @@ public final class Repo {
     public void lines(boolean force, Callback<List<FenixParser.Line>> cb) {
         IO.execute(() -> {
             List<FenixParser.Line> cached = store.loadLines();
-            boolean stale = force || cached.isEmpty() || store.age(Store.LINES_FILE) > LINES_MAX_AGE;
+            // A atualização diária fica com o Updater; aqui só baixa se não houver cópia ou se pedirem.
+            boolean stale = force || cached.isEmpty();
             if (!cached.isEmpty()) MAIN.post(() -> cb.done(cached, null));
             if (!stale) return;
             try {
@@ -70,8 +69,6 @@ public final class Repo {
 
     /** Horários salvos, sem internet. Pode ser nulo. */
     public FenixParser.Timetable cached(String code) { return store.loadTimetable(code); }
-
-    public boolean isStale(String code) { return store.age(Store.ttFile(code)) > TT_MAX_AGE; }
 
     /** Baixa os horários de uma linha e salva. */
     public void download(String code, String name, String url, Callback<FenixParser.Timetable> cb) {
@@ -91,19 +88,21 @@ public final class Repo {
         });
     }
 
-    /** Horários: cópia salva se houver (atualiza em segundo plano se velha); senão baixa. */
+    /** Horários: cópia salva se houver; senão baixa. A atualização diária fica com o Updater. */
     public void timetable(String code, String name, String url, Callback<FenixParser.Timetable> cb) {
         FenixParser.Timetable c = cached(code);
-        if (c != null) {
-            cb.done(c, null);
-            if (isStale(code)) download(code, name, url, (r, e) -> { });
-        } else download(code, name, url, cb);
+        if (c != null) cb.done(c, null);
+        else download(code, name, url, cb);
+    }
+
+    /** Falta de internet (e não problema no site). */
+    static boolean isNetwork(Exception e) {
+        return e instanceof java.net.UnknownHostException || e instanceof java.net.SocketTimeoutException
+                || e instanceof java.net.ConnectException || e instanceof java.net.NoRouteToHostException;
     }
 
     static String message(Exception e) {
-        if (e instanceof java.net.UnknownHostException || e instanceof java.net.SocketTimeoutException
-                || e instanceof java.net.ConnectException)
-            return "Sem conexão com a internet";
+        if (isNetwork(e)) return "Sem conexão com a internet";
         String m = e.getMessage();
         return m != null ? m : "Erro ao baixar";
     }

@@ -17,8 +17,14 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
 - **Link do Google Maps:** em Opções da lista, cole o link compartilhado do ponto
   de ônibus. O app tira a localização do link (não precisa estar no ponto) e
   ganha a opção "Abrir o ponto no Google Maps", onde aparecem as próximas passagens.
-- **Offline:** linhas e horários ficam salvos no celular. Atualiza sozinho
-  (linhas a cada 7 dias, horários a cada 3 dias) quando há internet.
+- **Offline:** linhas e horários ficam salvos no celular e funcionam sem internet.
+- **Atualização diária:** na primeira vez que o app é aberto no dia, baixa a lista de
+  linhas e os horários de todas as linhas salvas. Sem internet, tenta de novo na
+  próxima abertura (no mínimo 30 minutos depois). Dia sem abrir o app, sem atualização.
+- **Aviso e diagnóstico:** se a atualização tiver problema (site fora do ar, página
+  mudou, horários que não fazem sentido, saída de uma lista que sumiu), o app avisa
+  e mantém os horários antigos. Detalhes em Mais opções, Diagnóstico, com botão
+  para copiar o relatório.
 - **Feriados:** feriados nacionais, Sexta-feira Santa e 23/03 usam a tabela de
   domingo. Na lista, o botão "Tabela de hoje" troca a tabela manualmente.
 

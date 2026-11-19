@@ -140,6 +140,24 @@ public final class Store {
         } catch (Exception e) { return null; }
     }
 
+    /** Todas as linhas com horários salvos no celular. */
+    public List<FenixParser.Timetable> cachedTimetables() {
+        List<FenixParser.Timetable> out = new ArrayList<>();
+        File[] files = dir.listFiles();
+        if (files == null) return out;
+        for (File f : files) {
+            String n = f.getName();
+            if (!n.startsWith("linha_") || !n.endsWith(".json")) continue;
+            String s = read(n);
+            if (s == null) continue;
+            try {
+                FenixParser.Timetable tt = loadTimetable(new JSONObject(s).getString("c"));
+                if (tt != null) out.add(tt);
+            } catch (Exception ignored) { }
+        }
+        return out;
+    }
+
     // ---------- listas do usuário ----------
 
     private static final String LISTS_FILE = "listas.json";

@@ -161,14 +161,14 @@ public class ListaActivity extends Activity {
         return s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
-    /** Baixa horários que faltam ou estão velhos. Com force, baixa todos. */
+    /** Baixa horários que faltam. Com force (botão Atualizar), baixa todos. */
     private void refresh(boolean force) {
         List<Store.Item> todo = new ArrayList<>();
         List<String> seen = new ArrayList<>();
         for (Store.Item it : list.items) {
             if (seen.contains(it.code)) continue;
             seen.add(it.code);
-            if (force || repo.cached(it.code) == null || repo.isStale(it.code)) todo.add(it);
+            if (force || repo.cached(it.code) == null) todo.add(it);
         }
         if (todo.isEmpty()) {
             if (force) status.setText(list.items.isEmpty() ? "Nada para atualizar" : "Horários já estão atualizados");
