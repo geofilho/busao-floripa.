@@ -16,7 +16,7 @@ public class AjudaActivity extends Activity {
     private static final String[] TEXT = {
             "#Barra de cima",
             "O botão Pontos abre o Google Maps já pesquisando pontos de ônibus, mostrando os mais próximos de onde você está.",
-            "À direita dele fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix.",
+            "À direita dele fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix. A escolha fica memorizada: se você sair do aplicativo na tela intermunicipal, ele abre de novo nela, e o mesmo vale para a tela Fênix.",
             "Em Mais opções ficam três opções: Atualizar linhas e horários, Como usar e Dados.",
             "Atualizar linhas e horários baixa na hora, dos sites das empresas, a lista de linhas e os horários das linhas que você usa. O app já faz isso sozinho uma vez por dia; use quando quiser os horários mais novos agora.",
             "Dados abre Fazer backup, Restaurar backup, Diagnóstico e Atualizar aplicativo.",
