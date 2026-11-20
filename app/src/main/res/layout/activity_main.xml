@@ -28,17 +28,32 @@
         android:labelFor="@+id/search"
         android:text="Linhas de ônibus" />
 
-    <EditText
-        android:id="@+id/search"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Buscar linha por número ou nome"
-        android:imeOptions="actionSearch"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        android:minHeight="56dp"
-        android:singleLine="true"
-        android:textSize="20sp" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Buscar linha por número ou nome"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:minHeight="56dp"
+            android:singleLine="true"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/clearSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Limpar busca"
+            android:text="Limpar" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/status"

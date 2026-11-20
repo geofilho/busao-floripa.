@@ -58,6 +58,11 @@ public class MainActivity extends Activity {
             Ui.lineActions(this, l.code, l.name, l.url, null, null, this::renderLists);
         });
 
+        findViewById(R.id.clearSearch).setOnClickListener(v -> {
+            if (search.getText().length() == 0) { Ui.say(this, "A busca já está vazia"); return; }
+            clearSearch();
+            Ui.say(this, "Busca limpa");
+        });
         search.setOnFocusChangeListener((v, has) -> {
             if (!has && shown.isEmpty() && search.getText().length() > 0) clearSearch();
         });

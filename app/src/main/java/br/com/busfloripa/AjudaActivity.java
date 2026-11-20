@@ -21,7 +21,7 @@ public class AjudaActivity extends Activity {
 
             "#Tela inicial",
             "No topo ficam suas listas. Embaixo, a busca de linhas por número ou nome, sem precisar de acento.",
-            "Com uma busca feita, o gesto de voltar limpa a busca.",
+            "Ao lado direito do campo de busca fica o botão Limpar, que apaga o que foi digitado e mostra todas as linhas de novo. Com uma busca feita, o gesto de voltar também limpa a busca.",
 
             "#Transporte intermunicipal",
             "Empresas: Biguaçu, Estrela e Santa Terezinha. Na Biguaçu entram também as linhas executivas.",
