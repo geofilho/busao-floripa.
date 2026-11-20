@@ -61,7 +61,7 @@ public class AjudaActivity extends Activity {
 
             "#Horário em tempo real no Google Maps",
             "O Google Maps mostra as partidas em tempo real dos ônibus em cada ponto. O Busão Floripa G abre o Maps direto no ponto certo.",
-            "Para isso, salve os pontos de cada lista: em Opções da lista, Pontos no Google Maps, toque em Adicionar ponto do Google Maps. Dê um nome ao ponto e cole o link dele. Para pegar o link, no Google Maps abra o ponto de ônibus e toque em Compartilhar.",
+            "Para isso, salve os pontos de cada lista: em Opções da lista, Pontos no Google Maps, toque em Adicionar ponto. Dê um nome ao ponto e cole o link dele. Para pegar o link, no Google Maps abra o ponto de ônibus e toque em Compartilhar.",
             "Pode adicionar quantos pontos quiser em cada lista, por exemplo quando linhas diferentes passam em pontos diferentes.",
             "Para ver o tempo real, use Verificar horário em tempo real no Google Maps: no botão Tempo real, no canto de cima da tela da lista, ou nas ações do TalkBack. Abre um menu com os pontos pelo nome, na ordem em que foram adicionados. Escolha um e o Google Maps abre nele.",
             "Para mudar a ordem dos pontos, nesse menu use as ações do TalkBack em cima do ponto: Mover para cima ou Mover para baixo. A nova ordem fica salva. A ação Editar, ali mesmo, muda o nome ou o link do ponto.",

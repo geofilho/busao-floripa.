@@ -90,7 +90,7 @@ public final class ListOptions {
         names.add(to, s.name);
         Store.get(a).saveLists();
         ad.notifyDataSetChanged();
-        Ui.say(a, s.name + " movido para a posição " + (to + 1) + " de " + list.stops.size());
+        Ui.say(a, s.name + (to < from ? " movido para cima" : " movido para baixo"));
         lv.post(() -> {
             android.view.View v = lv.getChildAt(to - lv.getFirstVisiblePosition());
             if (v != null) v.performAccessibilityAction(
@@ -136,7 +136,7 @@ public final class ListOptions {
         box.addView(link);
         if (existing != null) { name.setText(existing.name); link.setText(existing.url); }
         new AlertDialog.Builder(a)
-                .setTitle(existing == null ? "Adicionar ponto do Google Maps" : "Editar ponto " + existing.name)
+                .setTitle(existing == null ? "Adicionar ponto" : "Editar ponto " + existing.name)
                 .setMessage(existing == null ? "No Google Maps, abra o ponto de ônibus, toque em Compartilhar e copie o link. "
                         + "Dê um nome ao ponto e cole o link aqui." : "Altere o nome, o link ou os dois.")
                 .setView(box)
@@ -214,52 +214,62 @@ public final class ListOptions {
     }
 
     /**
-     * Página Pontos no Google Maps: "Adicionar ponto do Google Maps" no topo e os pontos embaixo.
+     * Página Pontos no Google Maps: "Adicionar ponto" no topo e os pontos embaixo, só com o nome.
+     * Itens simples (sem lista numerada), para o TalkBack não anunciar "1 de 4".
      * Em cima de cada ponto, ações do TalkBack: Editar, Remover, Mover para cima, Mover para baixo.
      * Tocar num ponto abre um menu com as mesmas opções e Abrir no Google Maps.
      */
     static void stopsPage(Activity a, Store.UserList list, Host host) {
-        List<String> rows = new ArrayList<>();
-        Runnable fill = () -> {
-            rows.clear();
-            rows.add("Adicionar ponto do Google Maps");
-            for (int i = 0; i < list.stops.size(); i++)
-                rows.add(list.stops.get(i).name + ", ponto " + (i + 1) + " de " + list.stops.size());
+        android.widget.ScrollView scroll = new android.widget.ScrollView(a);
+        android.widget.LinearLayout box = new android.widget.LinearLayout(a);
+        box.setOrientation(android.widget.LinearLayout.VERTICAL);
+        scroll.addView(box);
+        final Runnable[] fill = {null};
+        fill[0] = () -> {
+            box.removeAllViews();
+            android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+            box.addView(row(a, "Adicionar ponto", v -> stopDialog(a, list, host, null, fill[0])), lp);
+            for (int k = 0; k < list.stops.size(); k++) {
+                final int i = k;
+                android.widget.TextView t = row(a, list.stops.get(i).name, v -> {
+                    List<Ui.Opt> o = new ArrayList<>();
+                    o.add(new Ui.Opt("Abrir no Google Maps", () -> openStop(a, list.stops.get(i))));
+                    o.addAll(stopActions(a, list, i, fill[0], box));
+                    String[] labels = new String[o.size()];
+                    for (int n = 0; n < labels.length; n++) labels[n] = o.get(n).label;
+                    new AlertDialog.Builder(a)
+                            .setTitle(list.stops.get(i).name)
+                            .setItems(labels, (d, w) -> o.get(w).run.run())
+                            .setNegativeButton("Fechar", null)
+                            .show();
+                });
+                ActionAdapter.attach(t, () -> stopActions(a, list, i, fill[0], box));
+                box.addView(t, new android.widget.LinearLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
+            }
+            host.changed();
         };
-        fill.run();
-        android.widget.ListView lv = new android.widget.ListView(a);
-        final AlertDialog[] dlg = {null};
-        final ActionAdapter[] ad = {null};
-        Runnable refresh = () -> { fill.run(); ad[0].notifyDataSetChanged(); host.changed(); };
-        ad[0] = new ActionAdapter(a, rows, pos -> {
-            if (pos == 0) return null;
-            int i = pos - 1;
-            return stopActions(a, list, i, refresh, lv);
-        });
-        lv.setAdapter(ad[0]);
-        lv.setOnItemClickListener((p, v, pos, id) -> {
-            if (pos == 0) { stopDialog(a, list, host, null, refresh); return; }
-            int i = pos - 1;
-            List<Ui.Opt> o = new ArrayList<>();
-            o.add(new Ui.Opt("Abrir no Google Maps", () -> openStop(a, list.stops.get(i))));
-            o.addAll(stopActions(a, list, i, refresh, lv));
-            String[] labels = new String[o.size()];
-            for (int k = 0; k < labels.length; k++) labels[k] = o.get(k).label;
-            new AlertDialog.Builder(a)
-                    .setTitle(list.stops.get(i).name)
-                    .setItems(labels, (d, w) -> o.get(w).run.run())
-                    .setNegativeButton("Fechar", null)
-                    .show();
-        });
-        dlg[0] = new AlertDialog.Builder(a)
+        fill[0].run();
+        new AlertDialog.Builder(a)
                 .setTitle("Pontos no Google Maps da lista " + list.name)
-                .setView(lv)
+                .setView(scroll)
                 .setNegativeButton("Fechar", null)
                 .show();
     }
 
+    /** Um item da página de pontos: texto grande, tocável. */
+    private static android.widget.TextView row(Activity a, String text, android.view.View.OnClickListener click) {
+        android.widget.TextView t = (android.widget.TextView) a.getLayoutInflater().inflate(R.layout.row, null, false);
+        t.setText(text);
+        t.setClickable(true);
+        t.setFocusable(true);
+        t.setOnClickListener(click);
+        return t;
+    }
+
     /** Ações de um ponto na página Pontos no Google Maps. */
-    private static List<Ui.Opt> stopActions(Activity a, Store.UserList list, int i, Runnable refresh, android.widget.ListView lv) {
+    private static List<Ui.Opt> stopActions(Activity a, Store.UserList list, int i, Runnable refresh, android.widget.LinearLayout box) {
         List<Ui.Opt> o = new ArrayList<>();
         if (i < 0 || i >= list.stops.size()) return o;
         o.add(new Ui.Opt("Editar", () -> stopDialog(a, list, null, list.stops.get(i), refresh)));
@@ -273,20 +283,20 @@ public final class ListOptions {
                 })
                 .setNegativeButton("Cancelar", null)
                 .show()));
-        if (i > 0) o.add(new Ui.Opt("Mover para cima", () -> move(a, list, i, i - 1, refresh, lv, 1)));
-        if (i < list.stops.size() - 1) o.add(new Ui.Opt("Mover para baixo", () -> move(a, list, i, i + 1, refresh, lv, 1)));
+        if (i > 0) o.add(new Ui.Opt("Mover para cima", () -> move(a, list, i, i - 1, refresh, box)));
+        if (i < list.stops.size() - 1) o.add(new Ui.Opt("Mover para baixo", () -> move(a, list, i, i + 1, refresh, box)));
         return o;
     }
 
-    /** Troca a ordem e leva o foco do TalkBack junto. offset = linhas antes dos pontos na lista da tela. */
-    private static void move(Activity a, Store.UserList list, int from, int to, Runnable refresh, android.widget.ListView lv, int offset) {
+    /** Troca a ordem e leva o foco do TalkBack junto (o item 0 da página é "Adicionar ponto"). */
+    private static void move(Activity a, Store.UserList list, int from, int to, Runnable refresh, android.widget.LinearLayout box) {
         Store.Stop s = list.stops.remove(from);
         list.stops.add(to, s);
         Store.get(a).saveLists();
         refresh.run();
-        Ui.say(a, s.name + " movido para a posição " + (to + 1) + " de " + list.stops.size());
-        lv.post(() -> {
-            android.view.View v = lv.getChildAt(to + offset - lv.getFirstVisiblePosition());
+        Ui.say(a, s.name + (to < from ? " movido para cima" : " movido para baixo"));
+        box.post(() -> {
+            android.view.View v = box.getChildAt(to + 1);
             if (v != null) v.performAccessibilityAction(
                     android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
         });
