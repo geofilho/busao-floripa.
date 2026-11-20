@@ -50,8 +50,8 @@ public class HorariosActivity extends Activity {
         dayBtns[1] = findViewById(R.id.daySabado);
         dayBtns[2] = findViewById(R.id.dayDomingo);
         Ui.heading(title);
-        title.setText(code + " " + name);
-        setTitle(code + " " + name);
+        title.setText(Providers.title(code, name));
+        setTitle(Providers.title(code, name));
 
         ListView lv = findViewById(R.id.times);
         adapter = Ui.adapter(this, rows);
@@ -113,7 +113,7 @@ public class HorariosActivity extends Activity {
                 first = false;
             } else sb.append(Schedule.clock(t.min));
             if (t.min >= 1440) sb.append(", madrugada");
-            String f = Schedule.flagsText(t.flags);
+            String f = Providers.flagsText(code, tt, t.flags);
             if (!f.isEmpty()) sb.append(", ").append(f);
             rows.add(sb.toString());
         }
@@ -122,7 +122,7 @@ public class HorariosActivity extends Activity {
 
         earlier.setVisibility(hidden > 0 ? View.VISIBLE : View.GONE);
         earlier.setText("Mostrar " + (hidden == 1 ? "1 horário anterior" : hidden + " horários anteriores"));
-        String upd = tt.updated.isEmpty() ? "" : " Tabela do Fênix atualizada em " + tt.updated + ".";
+        String upd = tt.updated.isEmpty() ? "" : " Tabela da " + (Providers.isFenix(code) ? "Fênix" : Providers.company(code)) + " atualizada em " + tt.updated + ".";
         info.setText(trips.size() + " saídas em " + FenixParser.DAY_NAMES[day].toLowerCase() + "." + upd);
     }
 
@@ -138,7 +138,7 @@ public class HorariosActivity extends Activity {
                 render();
                 if (tt.itinerary.isEmpty()) {
                     new android.app.AlertDialog.Builder(this).setTitle("Itinerário")
-                            .setMessage("O site do Fênix não mostra o itinerário desta linha.")
+                            .setMessage("O site " + (Providers.isFenix(code) ? "do Fênix" : "da " + Providers.company(code)) + " não mostra o itinerário desta linha.")
                             .setPositiveButton("Fechar", null).show();
                 } else showItinerary();
             });
@@ -151,7 +151,7 @@ public class HorariosActivity extends Activity {
         ListView lv = new ListView(this);
         lv.setAdapter(Ui.adapter(this, items));
         new android.app.AlertDialog.Builder(this)
-                .setTitle("Itinerário da " + code + (stops == tt.itinerary ? ", ida e volta, "
+                .setTitle("Itinerário da " + Providers.title(code, name) + (stops == tt.itinerary ? ", ida e volta, "
                         : " saindo de " + depName + ", ida e volta, ") + items.size() + " trechos")
                 .setView(lv)
                 .setPositiveButton("Fechar", null)

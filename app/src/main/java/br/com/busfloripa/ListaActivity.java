@@ -122,13 +122,13 @@ public class ListaActivity extends Activity {
             int idx = tt == null ? -1 : tt.indexOf(it.dep);
             if (tt != null && idx < 0 && it.depIdx < tt.departures.size()) idx = it.depIdx;
             if (tt == null || idx < 0) {
-                r.text = it.code + ", " + it.name + ". Horários ainda não baixados. Toque em Atualizar com internet.";
+                r.text = Providers.rowTitle(it.code, it.name) + ". Horários ainda não baixados. Toque em Atualizar com internet.";
                 r.sort = Integer.MAX_VALUE;
                 out.add(r);
                 continue;
             }
             List<Schedule.Arrival> next = Schedule.upcoming(tt.departures.get(idx), it.offset, now, type, 2);
-            StringBuilder sb = new StringBuilder(it.code).append(", ").append(it.name).append(". ");
+            StringBuilder sb = new StringBuilder(Providers.rowTitle(it.code, it.name)).append(". ");
             if (next.isEmpty()) {
                 sb.append("Sem horários nesta tabela. ").append(capital(Schedule.sentidoShort(tt, idx))).append('.');
                 r.sort = Integer.MAX_VALUE - 1;
@@ -138,7 +138,7 @@ public class ListaActivity extends Activity {
                         .append(", às ").append(Schedule.clock(a.at)).append(". ");
                 if (next.size() > 1) sb.append("Depois às ").append(Schedule.clock(next.get(1).at)).append(". ");
                 sb.append(capital(Schedule.sentidoShort(tt, idx)));
-                String f = Schedule.flagsText(a.trip.flags);
+                String f = Providers.flagsText(it.code, tt, a.trip.flags);
                 if (!f.isEmpty()) sb.append(", ").append(f);
                 sb.append('.');
                 r.sort = a.at;

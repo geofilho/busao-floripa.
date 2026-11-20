@@ -66,7 +66,36 @@ public class MainActivity extends Activity {
             @Override public void afterTextChanged(Editable s) { filter(); }
         });
 
+        inter = getSharedPreferences("tela", MODE_PRIVATE).getBoolean("inter", false);
+        applyMode();
         loadLines(false);
+    }
+
+    // ---------- Fênix ou intermunicipal ----------
+
+    /** true = mostrando as linhas intermunicipais (Estrela, Santa Terezinha). */
+    private boolean inter;
+
+    private void applyMode() {
+        TextView t = findViewById(R.id.linesTitle);
+        t.setText(inter ? "Linhas intermunicipais" : "Linhas de ônibus");
+        search.setHint(inter ? "Buscar linha intermunicipal por número, nome ou empresa" : "Buscar linha por número ou nome");
+        invalidateOptionsMenu();
+    }
+
+    private void toggleMode() {
+        inter = !inter;
+        getSharedPreferences("tela", MODE_PRIVATE).edit().putBoolean("inter", inter).apply();
+        clearSearch();
+        all.clear();
+        filter();
+        applyMode();
+        Ui.say(this, inter ? "Mostrando linhas intermunicipais" : "Mostrando linhas do Consórcio Fênix");
+        loadLines(false);
+    }
+
+    private void sortLines() {
+        if (inter) all.sort(Providers::compare); else all.sort(MainActivity::byNumber);
     }
 
     @Override protected void onResume() {
@@ -94,8 +123,8 @@ public class MainActivity extends Activity {
     private void onUpdated(Updater.Report r, boolean manual) {
         if (isFinishing() || isDestroyed()) return;
         all.clear();
-        all.addAll(Store.get(this).loadLines());
-        all.sort(MainActivity::byNumber);
+        all.addAll(inter ? Store.get(this).loadLines(Store.INTER_FILE) : Store.get(this).loadLines());
+        sortLines();
         filter();
         renderLists();
         searchStatus = false;
@@ -139,9 +168,13 @@ public class MainActivity extends Activity {
 
     private static final String LOADING = "Carregando linhas do Consórcio Fênix…";
 
+    private static final String LOADING_INTER = "Carregando linhas intermunicipais…";
+
     private void loadLines(boolean force) {
-        if (all.isEmpty()) status.setText(LOADING);
-        repo.lines(force, (lines, err) -> {
+        boolean mode = inter;
+        if (all.isEmpty()) status.setText(mode ? LOADING_INTER : LOADING);
+        Repo.Callback<List<FenixParser.Line>> cb = (lines, err) -> {
+            if (mode != inter) return; // trocou de tela enquanto carregava
             if (lines == null) {
                 status.setText("Não foi possível carregar as linhas. " + err
                         + ". Conecte à internet e use Mais opções, Atualizar agora.");
@@ -149,11 +182,12 @@ public class MainActivity extends Activity {
             }
             all.clear();
             all.addAll(lines);
-            all.sort(MainActivity::byNumber);
+            sortLines();
             filter();
             // Linhas carregadas: tira o aviso de carregamento (sem mexer em outro aviso, como o da atualização).
-            if (LOADING.contentEquals(status.getText())) status.setText("");
-        });
+            if (LOADING.contentEquals(status.getText()) || LOADING_INTER.contentEquals(status.getText())) status.setText("");
+        };
+        if (mode) repo.interLines(force, cb); else repo.lines(force, cb);
     }
 
     /** Ordem numérica: 174 antes de V-174, 175 depois; códigos sem número no fim. */
@@ -204,12 +238,18 @@ public class MainActivity extends Activity {
         for (FenixParser.Line l : all) {
             String code = FenixParser.fold(l.code), name = FenixParser.fold(l.name);
             if (q.isEmpty()) { shown.add(l); continue; }
+            if (!Providers.isFenix(l.code)) {
+                // Intermunicipal: o nome já começa pelo número; busca também pela empresa.
+                if (name.startsWith(q)) shown.add(l);
+                else if (name.contains(q) || FenixParser.fold(l.category).contains(q)) rest.add(l);
+                continue;
+            }
             if (code.equals(q) || code.startsWith(q) || code.replace("v ", "").startsWith(q)) shown.add(l);
             else if (name.contains(q) || (code + " " + name).contains(q)) rest.add(l);
         }
         shown.addAll(rest);
         rows.clear();
-        for (FenixParser.Line l : shown) rows.add(l.code + ", " + l.name);
+        for (FenixParser.Line l : shown) rows.add(Providers.rowTitle(l.code, l.name));
         adapter.notifyDataSetChanged();
         // Só mexe no aviso quando ele é da busca, para não apagar o aviso da atualização diária.
         if (quiet || q.isEmpty() || all.isEmpty()) {
@@ -332,6 +372,10 @@ public class MainActivity extends Activity {
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
+        // Botão na barra, à esquerda de Mais opções: alterna entre Fênix e intermunicipal.
+        MenuItem sw = menu.add(0, 7, 0, inter ? "Fênix" : "Intermunicipal");
+        sw.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        sw.setContentDescription(inter ? "Alternar para Consórcio Fênix" : "Alternar para transporte intermunicipal");
         menu.add(0, 1, 0, "Atualizar agora");
         menu.add(0, 2, 0, "Como usar");
         android.view.SubMenu dados = menu.addSubMenu(0, 6, 0, "Dados");
@@ -351,6 +395,10 @@ public class MainActivity extends Activity {
         }
         if (item.getItemId() == 3) {
             openDiagnostico();
+            return true;
+        }
+        if (item.getItemId() == 7) {
+            toggleMode();
             return true;
         }
         if (item.getItemId() == 2) {

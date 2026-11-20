@@ -110,7 +110,7 @@ public final class Ui {
                 Schedule.dayType(now.toLocalDate()));
         if (cands.isEmpty()) {
             new AlertDialog.Builder(a).setTitle("O ônibus chegou agora")
-                    .setMessage("Nenhum " + item.code + " saiu de " + item.dep + " nas últimas 2 horas. "
+                    .setMessage("Nenhum " + item.title() + " saiu de " + item.dep + " nas últimas 2 horas. "
                             + "Confira se é a linha e o sentido certos.")
                     .setPositiveButton("Fechar", null).show();
             return;
@@ -200,12 +200,12 @@ public final class Ui {
     public static void withTimetable(Activity a, String code, String name, String url,
                                      Consumer<FenixParser.Timetable> ok) {
         Repo repo = new Repo(a);
-        if (repo.cached(code) == null) say(a, "Baixando horários da linha " + code);
+        if (repo.cached(code) == null) say(a, "Baixando horários da linha " + Providers.title(code, name));
         repo.timetable(code, name, url, (tt, err) -> {
             if (a.isFinishing() || a.isDestroyed()) return;
             if (tt == null) {
                 new AlertDialog.Builder(a)
-                        .setTitle(code + " " + name)
+                        .setTitle(Providers.title(code, name))
                         .setMessage("Não foi possível abrir os horários. " + err + ".")
                         .setPositiveButton("Tentar de novo", (d, w) -> withTimetable(a, code, name, url, ok))
                         .setNegativeButton("Fechar", null)
@@ -238,7 +238,7 @@ public final class Ui {
             out.add(new Opt("Remover da lista", () -> {
                 list.items.remove(item);
                 Store.get(a).saveLists();
-                say(a, tt.code + " removida da lista");
+                say(a, Providers.title(tt.code, tt.name) + " removida da lista");
                 if (changed != null) changed.run();
             }));
         }
@@ -279,7 +279,7 @@ public final class Ui {
             String[] labels = new String[opts.size()];
             for (int k = 0; k < labels.length; k++) labels[k] = opts.get(k).label;
             new AlertDialog.Builder(a)
-                    .setTitle(code + " " + name)
+                    .setTitle(Providers.title(code, name))
                     .setItems(labels, (d, w) -> opts.get(w).run.run())
                     .setNegativeButton("Fechar", null)
                     .show();
@@ -294,7 +294,7 @@ public final class Ui {
             it.dep = tt.departures.get(dep).name; it.depIdx = dep; it.offset = off;
             list.items.add(it);
             Store.get(a).saveLists();
-            say(a, tt.code + " adicionada à lista " + list.name);
+            say(a, Providers.title(tt.code, tt.name) + " adicionada à lista " + list.name);
             if (changed != null) changed.run();
         }));
         if (order.size() == 1) { withDep.accept(order.get(0)); return; }

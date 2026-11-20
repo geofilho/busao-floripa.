@@ -146,7 +146,7 @@ public final class Updater {
         try {
             List<FenixParser.Line> fresh = FenixParser.parseIndex(Repo.download(FenixParser.INDEX_URL));
             if (fresh.isEmpty()) {
-                r.add(ERRO, "Lista de linhas: a página do Fênix abriu, mas não encontrei nenhuma linha. "
+                r.add(ERRO, "Linhas do Fênix: a página abriu, mas não encontrei nenhuma linha. "
                         + "O site pode ter mudado.");
             } else if (oldLines.size() > 20 && fresh.size() < oldLines.size() / 2) {
                 r.add(AVISO, "Lista de linhas: o site mostrou só " + fresh.size() + " linhas, antes eram "
@@ -161,10 +161,39 @@ public final class Updater {
             r.add(ERRO, "Lista de linhas: " + Repo.message(e) + ".");
         }
 
+        // 1b. Linhas intermunicipais (só se você já abriu a lista intermunicipal alguma vez)
+        List<FenixParser.Line> interOld = store.loadLines(Store.INTER_FILE);
+        List<FenixParser.Line> interNew = new ArrayList<>();
+        if (!interOld.isEmpty()) {
+            for (Providers.Source s : Providers.INTER) {
+                int before = 0;
+                for (FenixParser.Line l : interOld) if (l.code.startsWith(s.prefix + "#")) before++;
+                try {
+                    List<FenixParser.Line> fresh = Providers.parseIndex(s, Repo.download(s.indexUrl));
+                    if (fresh.isEmpty()) {
+                        r.add(ERRO, "Linhas da " + s.company + ": o site abriu, mas não encontrei nenhuma linha. O site pode ter mudado.");
+                        keep(interOld, interNew, s);
+                    } else if (before > 4 && fresh.size() < before / 2) {
+                        r.add(AVISO, "Linhas da " + s.company + ": o site mostrou só " + fresh.size() + ", antes eram " + before + ". Mantive as antigas.");
+                        keep(interOld, interNew, s);
+                    } else {
+                        interNew.addAll(fresh);
+                        r.add(OK, "Linhas da " + s.company + ": " + fresh.size() + ".");
+                    }
+                } catch (Exception e) {
+                    if (Repo.isNetwork(e)) { r.noInternet = true; return r; }
+                    r.add(ERRO, "Linhas da " + s.company + ": " + Repo.message(e) + ".");
+                    keep(interOld, interNew, s);
+                }
+            }
+            if (!interNew.isEmpty()) store.saveLines(Store.INTER_FILE, interNew);
+        }
+
         // 2. Quais linhas atualizar: as que estão nas listas e as que já têm horários salvos.
         Map<String, String[]> todo = new LinkedHashMap<>(); // código -> {nome, endereço}
         Map<String, String> urlByCode = new LinkedHashMap<>();
         for (FenixParser.Line l : lines) urlByCode.put(l.code, l.url);
+        for (FenixParser.Line l : interNew.isEmpty() ? interOld : interNew) urlByCode.put(l.code, l.url);
         for (Store.UserList ul : store.lists())
             for (Store.Item it : ul.items)
                 if (!todo.containsKey(it.code)) todo.put(it.code, new String[]{it.name, it.url});
@@ -182,11 +211,11 @@ public final class Updater {
         for (Map.Entry<String, String[]> e : todo.entrySet()) {
             String code = e.getKey(), name = e.getValue()[0];
             String url = urlByCode.containsKey(code) ? urlByCode.get(code) : e.getValue()[1];
-            String label = code + " " + name + ": ";
+            String label = Providers.title(code, name) + ": ";
             FenixParser.Timetable old = store.loadTimetable(code);
             FenixParser.Timetable tt;
             try {
-                tt = FenixParser.parseLine(Repo.download(url));
+                tt = Providers.parseLine(code, Repo.download(url));
             } catch (Exception ex) {
                 if (Repo.isNetwork(ex)) {
                     r.noInternet = true;
@@ -236,6 +265,10 @@ public final class Updater {
             }
         }
         return r;
+    }
+
+    private static void keep(List<FenixParser.Line> from, List<FenixParser.Line> to, Providers.Source s) {
+        for (FenixParser.Line l : from) if (l.code.startsWith(s.prefix + "#")) to.add(l);
     }
 
     private static int total(FenixParser.Timetable tt) {

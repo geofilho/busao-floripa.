@@ -67,6 +67,34 @@ public final class Repo {
         });
     }
 
+    /**
+     * Linhas intermunicipais de todas as empresas. Usa a cópia salva; baixa se não houver ou se pedir.
+     * Empresa que falhar mantém as linhas salvas dela.
+     */
+    public void interLines(boolean force, Callback<List<FenixParser.Line>> cb) {
+        IO.execute(() -> {
+            List<FenixParser.Line> cached = store.loadLines(Store.INTER_FILE);
+            if (!cached.isEmpty()) MAIN.post(() -> cb.done(cached, null));
+            if (!force && !cached.isEmpty()) return;
+            List<FenixParser.Line> merged = new java.util.ArrayList<>();
+            String lastErr = null;
+            for (Providers.Source s : Providers.INTER) {
+                try {
+                    List<FenixParser.Line> l = Providers.parseIndex(s, download(s.indexUrl));
+                    if (l.isEmpty()) throw new IOException("não encontrei linhas no site da " + s.company);
+                    merged.addAll(l);
+                } catch (Exception e) {
+                    lastErr = s.company + ": " + message(e);
+                    for (FenixParser.Line l : cached) if (l.code.startsWith(s.prefix + "#")) merged.add(l);
+                }
+            }
+            if (!merged.isEmpty()) store.saveLines(Store.INTER_FILE, merged);
+            final String err = lastErr;
+            if (!merged.isEmpty()) MAIN.post(() -> cb.done(merged, null));
+            else if (cached.isEmpty()) MAIN.post(() -> cb.done(null, err));
+        });
+    }
+
     /** Horários salvos, sem internet. Pode ser nulo. */
     public FenixParser.Timetable cached(String code) { return store.loadTimetable(code); }
 
@@ -74,7 +102,7 @@ public final class Repo {
     public void download(String code, String name, String url, Callback<FenixParser.Timetable> cb) {
         IO.execute(() -> {
             try {
-                FenixParser.Timetable tt = FenixParser.parseLine(download(url));
+                FenixParser.Timetable tt = Providers.parseLine(code, download(url));
                 tt.code = code;
                 tt.name = name;
                 int total = 0;

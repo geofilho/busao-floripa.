@@ -1,0 +1,85 @@
+package br.com.busfloripa;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Empresas de ônibus. Linhas do Fênix têm o código normal ("174"); as intermunicipais têm
+ * um prefixo com "#" ("EST#0317", "STE#sertao-florianopolis") e o nome já traz o número, se houver.
+ */
+public final class Providers {
+
+    private Providers() { }
+
+    public static final class Source {
+        public final String prefix, company, indexUrl;
+        Source(String prefix, String company, String indexUrl) {
+            this.prefix = prefix; this.company = company; this.indexUrl = indexUrl;
+        }
+    }
+
+    /** Empresas intermunicipais com leitura pronta. */
+    public static final Source[] INTER = {
+            new Source("EST", "Estrela", "http://www.insulartc.com.br/estrela/"),
+            new Source("STE", "Santa Terezinha", "https://santaterezinha.com/horarios/"),
+    };
+
+    public static boolean isFenix(String code) { return code == null || code.indexOf('#') < 0; }
+
+    public static String company(String code) {
+        if (isFenix(code)) return "Consórcio Fênix";
+        String p = code.substring(0, code.indexOf('#'));
+        for (Source s : INTER) if (s.prefix.equals(p)) return s.company;
+        return "";
+    }
+
+    /** Nome para mostrar: Fênix "174 Saco Grande..."; intermunicipal só o nome (que já tem o número). */
+    public static String title(String code, String name) {
+        return isFenix(code) ? code + " " + name : name;
+    }
+
+    /** Nome para listas, com vírgula: "174, Saco Grande..." ou "317 Campinas via Kobrasol, Estrela". */
+    public static String rowTitle(String code, String name) {
+        return isFenix(code) ? code + ", " + name : name + ", " + company(code);
+    }
+
+    public static FenixParser.Timetable parseLine(String code, String html) {
+        return isFenix(code) ? FenixParser.parseLine(html) : GenericParser.parseLine(html);
+    }
+
+    public static List<FenixParser.Line> parseIndex(Source s, String html) {
+        if (s.prefix.equals("EST")) return GenericParser.parseIndexEstrela(html, s.indexUrl);
+        if (s.prefix.equals("STE")) return GenericParser.parseIndexSantaTerezinha(html);
+        return new ArrayList<>();
+    }
+
+    /** Letras do horário em palavras. Fênix: E, M, R, *. Intermunicipal: legenda da própria página. */
+    public static String flagsText(String code, FenixParser.Timetable tt, String flags) {
+        if (isFenix(code)) return Schedule.flagsText(flags);
+        if (flags == null || flags.isEmpty()) return "";
+        Map<String, String> lg = tt == null ? null : tt.legend;
+        List<String> out = new ArrayList<>();
+        for (String f : flags.split("\\s+")) {
+            String key = f.replace("*", "");
+            String desc = lg == null ? null : lg.get(key);
+            if (f.equals("*")) desc = "horário com observação";
+            out.add(desc != null ? desc.toLowerCase(java.util.Locale.ROOT) : f);
+        }
+        return String.join(", ", out);
+    }
+
+    /** Ordem da lista intermunicipal: empresa, depois número, depois nome. */
+    public static int compare(FenixParser.Line a, FenixParser.Line b) {
+        int c = company(a.code).compareTo(company(b.code));
+        if (c != 0) return c;
+        int na = leadingNumber(a.name), nb = leadingNumber(b.name);
+        if (na != nb) return Integer.compare(na, nb);
+        return a.name.compareToIgnoreCase(b.name);
+    }
+
+    private static int leadingNumber(String s) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(\\d+)").matcher(s);
+        return m.find() ? Integer.parseInt(m.group(1)) : Integer.MAX_VALUE;
+    }
+}

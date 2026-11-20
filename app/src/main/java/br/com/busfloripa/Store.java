@@ -22,7 +22,7 @@ public final class Store {
         public int depIdx, offset;
         /** Tempos medidos com "O ônibus chegou agora" (últimos 5). */
         public final List<Integer> samples = new ArrayList<>();
-        public String title() { return code + " " + name; }
+        public String title() { return Providers.title(code, name); }
     }
 
     public static final class UserList {
@@ -74,18 +74,25 @@ public final class Store {
 
     public static final String LINES_FILE = "linhas.json";
 
-    public void saveLines(List<FenixParser.Line> lines) {
+    public void saveLines(List<FenixParser.Line> lines) { saveLines(LINES_FILE, lines); }
+
+    public List<FenixParser.Line> loadLines() { return loadLines(LINES_FILE); }
+
+    /** Linhas intermunicipais (todas as empresas juntas). */
+    public static final String INTER_FILE = "linhas_intermunicipais.json";
+
+    public void saveLines(String file, List<FenixParser.Line> lines) {
         try {
             JSONArray a = new JSONArray();
             for (FenixParser.Line l : lines)
                 a.put(new JSONObject().put("c", l.code).put("n", l.name).put("u", l.url).put("g", l.category));
-            write(LINES_FILE, a.toString());
+            write(file, a.toString());
         } catch (Exception ignored) { }
     }
 
-    public List<FenixParser.Line> loadLines() {
+    public List<FenixParser.Line> loadLines(String file) {
         List<FenixParser.Line> out = new ArrayList<>();
-        String s = read(LINES_FILE);
+        String s = read(file);
         if (s == null) return out;
         try {
             JSONArray a = new JSONArray(s);
@@ -117,7 +124,7 @@ public final class Store {
             JSONArray itin = new JSONArray();
             for (String st : tt.itinerary) itin.put(st);
             write(ttFile(tt.code), new JSONObject().put("c", tt.code).put("n", tt.name)
-                    .put("u", tt.updated).put("deps", deps).put("it", itin).toString());
+                    .put("u", tt.updated).put("deps", deps).put("it", itin).put("lg", new JSONObject(tt.legend)).toString());
         } catch (Exception ignored) { }
     }
 
@@ -150,6 +157,11 @@ public final class Store {
                     }
                 }
                 tt.departures.add(dep);
+            }
+            JSONObject lg = o.optJSONObject("lg");
+            if (lg != null) {
+                java.util.Iterator<String> keys = lg.keys();
+                while (keys.hasNext()) { String k = keys.next(); tt.legend.put(k, lg.optString(k)); }
             }
             JSONArray itin = o.optJSONArray("it");
             if (itin != null) for (int i = 0; i < itin.length(); i++) tt.itinerary.add(itin.optString(i));

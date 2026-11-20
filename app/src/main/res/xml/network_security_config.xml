@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- O site de horários da Estrela só tem endereço http. Liberado apenas para ele. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">insulartc.com.br</domain>
+    </domain-config>
+</network-security-config>

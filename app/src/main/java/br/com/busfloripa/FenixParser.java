@@ -60,6 +60,8 @@ public final class FenixParser {
         public final List<Departure> departures = new ArrayList<>();
         /** Ruas e lugares por onde a linha passa, em ordem (ida e volta). */
         public final List<String> itinerary = new ArrayList<>();
+        /** Significado das letras dos horários (só nas empresas intermunicipais). */
+        public final Map<String, String> legend = new LinkedHashMap<>();
         public int indexOf(String depName) {
             for (int i = 0; i < departures.size(); i++) if (departures.get(i).name.equals(depName)) return i;
             return -1;

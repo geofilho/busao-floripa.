@@ -14,13 +14,20 @@ public class AjudaActivity extends Activity {
 
     /** "#" no início = título. */
     private static final String[] TEXT = {
-            "#Menu Mais opções",
-            "No canto de cima, à direita, ficam três opções: Atualizar agora, Como usar e Dados.",
+            "#Barra de cima",
+            "À esquerda de Mais opções fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix.",
+            "Em Mais opções ficam três opções: Atualizar agora, Como usar e Dados.",
             "Dados abre Fazer backup, Restaurar backup e Diagnóstico.",
 
             "#Tela inicial",
             "No topo ficam suas listas. Embaixo, a busca de linhas por número ou nome, sem precisar de acento.",
             "Com uma busca feita, o gesto de voltar limpa a busca.",
+
+            "#Transporte intermunicipal",
+            "Por enquanto: Estrela e Santa Terezinha. A Biguaçu ainda não está disponível.",
+            "Funciona igual ao Fênix: busque a linha por número, nome ou empresa, toque nela, veja as saídas ou adicione a uma lista. Uma lista pode ter linhas do Fênix e intermunicipais juntas.",
+            "As letras ao lado dos horários, como via Univali ou via Shopping Continente, vêm da legenda do site da empresa e aparecem escritas por extenso quando o site informa.",
+            "As linhas intermunicipais não têm itinerário no site, então o botão Itinerário avisa isso.",
 
             "#Criar uma lista",
             "1. Toque em Criar nova lista e dê um nome, por exemplo Saídas de casa.",
