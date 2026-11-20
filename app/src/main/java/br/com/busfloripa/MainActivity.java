@@ -444,8 +444,7 @@ public class MainActivity extends Activity {
         menu.add(0, 2, 0, "Como usar");
         android.view.SubMenu dados = menu.addSubMenu(0, 6, 0, "Dados");
         dados.setHeaderTitle("Dados");
-        dados.add(0, 4, 0, "Fazer backup");
-        dados.add(0, 5, 0, "Restaurar backup");
+        dados.add(0, 10, 0, "Backup");
         dados.add(0, 3, 0, "Diagnóstico");
         dados.add(0, 8, 0, "Atualizar aplicativo");
         return true;
@@ -478,22 +477,38 @@ public class MainActivity extends Activity {
             startActivity(new Intent(this, AjudaActivity.class));
             return true;
         }
-        if (item.getItemId() == 4) {
-            if (Store.get(this).lists().isEmpty()) { Ui.say(this, "Você ainda não tem listas para salvar"); return true; }
+        if (item.getItemId() == 10) {
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Backup")
+                    .setItems(new String[]{"Fazer backup", "Restaurar backup"}, (d, w) -> {
+                        if (w == 0) saveBackup(); else openBackup();
+                    })
+                    .setNegativeButton("Fechar", null)
+                    .show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /** Backup, Fazer backup: escolhe onde salvar o arquivo. */
+    private void saveBackup() {
+        {
+            if (Store.get(this).lists().isEmpty()) { Ui.say(this, "Você ainda não tem listas para salvar"); return; }
             Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT)
                     .addCategory(Intent.CATEGORY_OPENABLE)
                     .setType("application/json")
                     .putExtra(Intent.EXTRA_TITLE, "busao-floripa-backup-" + java.time.LocalDate.now() + ".json");
             startActivityForResult(i, REQ_SAVE);
-            return true;
         }
-        if (item.getItemId() == 5) {
+    }
+
+    /** Backup, Restaurar backup: escolhe o arquivo. */
+    private void openBackup() {
+        {
             Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT)
                     .addCategory(Intent.CATEGORY_OPENABLE)
                     .setType("*/*");
             startActivityForResult(i, REQ_OPEN);
-            return true;
         }
-        return super.onOptionsItemSelected(item);
     }
 }

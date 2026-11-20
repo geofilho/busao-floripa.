@@ -19,7 +19,7 @@ public class AjudaActivity extends Activity {
             "À direita dele fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix. A escolha fica memorizada: se você sair do aplicativo na tela intermunicipal, ele abre de novo nela, e o mesmo vale para a tela Fênix.",
             "Em Mais opções ficam três opções: Atualizar linhas e horários, Como usar e Dados.",
             "Atualizar linhas e horários baixa na hora, dos sites das empresas, a lista de linhas e os horários das linhas que você usa. O app já faz isso sozinho uma vez por dia; use quando quiser os horários mais novos agora.",
-            "Dados abre Fazer backup, Restaurar backup, Diagnóstico e Atualizar aplicativo.",
+            "Dados abre Backup, Diagnóstico e Atualizar aplicativo. Backup abre Fazer backup e Restaurar backup.",
 
             "#Tela inicial",
             "No topo ficam suas listas. Embaixo, a busca de linhas por número ou nome, sem precisar de acento.",
@@ -83,8 +83,8 @@ public class AjudaActivity extends Activity {
             "Em Mais opções, Dados, Diagnóstico, toque em Copiar relatório e envie o texto para quem cuida do app.",
 
             "#Backup",
-            "Mais opções, Dados, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais das listas, com posição GPS e células da operadora, e os pontos do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
-            "Mais opções, Dados, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
+            "Mais opções, Dados, Backup, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais das listas, com posição GPS e células da operadora, e os pontos do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
+            "Mais opções, Dados, Backup, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
 
             "#Sobre os horários",
             "Os horários vêm dos sites do Consórcio Fênix, da Biguaçu, da Estrela, da Jotur e da Santa Terezinha e podem mudar. Em caso de dúvida, confira no site da empresa.",
