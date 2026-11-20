@@ -16,7 +16,8 @@ public class AjudaActivity extends Activity {
     private static final String[] TEXT = {
             "#Barra de cima",
             "À esquerda de Mais opções fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix.",
-            "Em Mais opções ficam três opções: Atualizar agora, Como usar e Dados.",
+            "Em Mais opções ficam três opções: Atualizar linhas e horários, Como usar e Dados.",
+            "Atualizar linhas e horários baixa na hora, dos sites das empresas, a lista de linhas e os horários das linhas que você usa. O app já faz isso sozinho uma vez por dia; use quando quiser os horários mais novos agora.",
             "Dados abre Fazer backup, Restaurar backup, Diagnóstico e Atualização.",
 
             "#Tela inicial",
@@ -61,7 +62,7 @@ public class AjudaActivity extends Activity {
             "#Atualização",
             "Na primeira vez que você abre o app no dia, os horários são atualizados.",
             "Sem internet, o app usa os horários salvos no celular e tenta atualizar de novo depois.",
-            "Para atualizar na hora, use Mais opções, Atualizar agora.",
+            "Para atualizar na hora, use Mais opções, Atualizar linhas e horários.",
 
             "#Quando der problema",
             "Se a atualização falhar, aparece um aviso e os horários antigos continuam salvos.",

@@ -193,7 +193,7 @@ public class MainActivity extends Activity {
             if (mode != inter) return; // trocou de tela enquanto carregava
             if (lines == null) {
                 status.setText("Não foi possível carregar as linhas. " + err
-                        + ". Conecte à internet e use Mais opções, Atualizar agora.");
+                        + ". Conecte à internet e use Mais opções, Atualizar linhas e horários.");
                 return;
             }
             all.clear();
@@ -392,7 +392,7 @@ public class MainActivity extends Activity {
         MenuItem sw = menu.add(0, 7, 0, inter ? "Fênix" : "Intermunicipal");
         sw.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
         sw.setContentDescription(inter ? "Alternar para Consórcio Fênix" : "Alternar para transporte intermunicipal");
-        menu.add(0, 1, 0, "Atualizar agora");
+        menu.add(0, 1, 0, "Atualizar linhas e horários");
         menu.add(0, 2, 0, "Como usar");
         android.view.SubMenu dados = menu.addSubMenu(0, 6, 0, "Dados");
         dados.setHeaderTitle("Dados");
