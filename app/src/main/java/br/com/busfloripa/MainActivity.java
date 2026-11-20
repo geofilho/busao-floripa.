@@ -108,18 +108,7 @@ public class MainActivity extends Activity {
     }
 
     /** Google Maps com a busca "pontos de ônibus" perto de onde você está. */
-    private void openNearbyStops() {
-        android.net.Uri geo = android.net.Uri.parse("geo:0,0?q=" + android.net.Uri.encode("pontos de ônibus"));
-        Intent maps = new Intent(Intent.ACTION_VIEW, geo).setPackage("com.google.android.apps.maps");
-        try { startActivity(maps); return; } catch (Exception ignored) { }
-        try { startActivity(new Intent(Intent.ACTION_VIEW, geo)); return; } catch (Exception ignored) { }
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
-                    "https://www.google.com/maps/search/?api=1&query=" + android.net.Uri.encode("pontos de ônibus"))));
-        } catch (Exception e) {
-            Ui.say(this, "Não encontrei o Google Maps neste celular");
-        }
-    }
+    private void openNearbyStops() { ListOptions.openNearbyStops(this); }
 
     private void sortLines() {
         if (inter) all.sort(Providers::compare); else all.sort(MainActivity::byNumber);

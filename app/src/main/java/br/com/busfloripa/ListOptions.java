@@ -112,6 +112,42 @@ public final class ListOptions {
     public static void addStop(Activity a, Store.UserList list, Host host) { stopDialog(a, list, host, null, null); }
 
     /** Nome e link do ponto, num quadro só. Com existing, edita esse ponto; sem, adiciona um novo. */
+    static final String ADD_HELP =
+            "Se você estiver perto do ponto ou no próprio ponto que quer adicionar:\n\n"
+            + "1. Na tela inicial do aplicativo, toque no botão Pontos, que o TalkBack lê como Localizar pontos de ônibus próximos no Google Maps. "
+            + "Ele abre o Google Maps já com o ponto mais próximo localizado.\n\n"
+            + "2. O ponto aparece com o nome da rua, ponto de ônibus, e as linhas que passam nele, por exemplo 174, 178. "
+            + "Abrindo o ponto, o Google Maps mostra os horários daquele ponto em tempo real.\n\n"
+            + "3. Procure o botão Compartilhar, mais para a borda direita, no meio da tela. Toque em Copiar link.\n\n"
+            + "4. Volte ao aplicativo, em Adicionar ponto, dê um nome ao ponto e cole o link no campo Link do ponto no Google Maps. Toque em Salvar.\n\n"
+            + "Se você não estiver no ponto que quer adicionar:\n\n"
+            + "No Google Maps, pesquise por ponto de ônibus e o nome do lugar, por exemplo: ponto de ônibus TICEN, o Terminal de Integração do Centro. "
+            + "Abra o ponto e siga os mesmos passos acima para copiar o link e colar no aplicativo.";
+
+    /** Ajuda do botão Ajuda para adicionar, com atalho para os pontos próximos no Google Maps. */
+    static void addHelp(Activity a) {
+        new AlertDialog.Builder(a)
+                .setTitle("Ajuda para adicionar ponto")
+                .setMessage(ADD_HELP)
+                .setPositiveButton("Localizar pontos próximos", (d, w) -> openNearbyStops(a))
+                .setNegativeButton("Fechar", null)
+                .show();
+    }
+
+    /** Google Maps com a busca "pontos de ônibus" perto de onde você está. */
+    static void openNearbyStops(Activity a) {
+        android.net.Uri geo = android.net.Uri.parse("geo:0,0?q=" + android.net.Uri.encode("pontos de ônibus"));
+        android.content.Intent maps = new android.content.Intent(android.content.Intent.ACTION_VIEW, geo).setPackage("com.google.android.apps.maps");
+        try { a.startActivity(maps); return; } catch (Exception ignored) { }
+        try { a.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, geo)); return; } catch (Exception ignored) { }
+        try {
+            a.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(
+                    "https://www.google.com/maps/search/?api=1&query=" + android.net.Uri.encode("pontos de ônibus"))));
+        } catch (Exception e) {
+            Ui.say(a, "Não encontrei o Google Maps neste celular");
+        }
+    }
+
     public static void stopDialog(Activity a, Store.UserList list, Host host, Store.Stop existing, Runnable after) {
         android.widget.LinearLayout box = new android.widget.LinearLayout(a);
         box.setOrientation(android.widget.LinearLayout.VERTICAL);
@@ -134,6 +170,12 @@ public final class ListOptions {
         link.setImportantForAutofill(android.view.View.IMPORTANT_FOR_AUTOFILL_NO);
         box.addView(name);
         box.addView(link);
+        android.widget.Button help = new android.widget.Button(a);
+        help.setText("Ajuda para adicionar");
+        help.setTextSize(18);
+        help.setMinHeight(Ui.dp(a, 56));
+        help.setOnClickListener(v -> addHelp(a));
+        box.addView(help);
         if (existing != null) { name.setText(existing.name); link.setText(existing.url); }
         new AlertDialog.Builder(a)
                 .setTitle(existing == null ? "Adicionar ponto" : "Editar ponto " + existing.name)
