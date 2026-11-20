@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Opções de uma lista: "Ligar a lista ao local onde estou agora" e "Editar" (renomear, desligar do
- * local, excluir). Usadas pelo botão Opções da lista e pelas ações do TalkBack na tela inicial.
+ * Opções de uma lista: "Ligar a lista ao local onde estou agora", "Desvincular a lista do local"
+ * (se tiver local) e "Editar" (renomear, excluir). Usadas pelo botão Opções da lista e pelas ações do TalkBack na tela inicial.
  */
 public final class ListOptions {
 
@@ -33,6 +33,13 @@ public final class ListOptions {
         List<Ui.Opt> out = new ArrayList<>();
         out.add(new Ui.Opt(list.hasPlace() ? "Ligar a lista ao local onde estou agora, troca o local salvo"
                 : "Ligar a lista ao local onde estou agora", () -> link(a, list, host)));
+        if (list.hasPlace()) out.add(new Ui.Opt("Desvincular a lista do local", () -> {
+            list.hasLoc = false;
+            list.cells.clear();
+            Store.get(a).saveLists();
+            Ui.say(a, "Lista " + list.name + " desvinculada do local");
+            host.changed();
+        }));
         out.add(new Ui.Opt("Editar", () -> edit(a, list, host)));
         return out;
     }
@@ -49,7 +56,7 @@ public final class ListOptions {
                 .show();
     }
 
-    /** Editar: renomear, desligar do local, excluir. */
+    /** Editar: renomear, excluir. */
     public static void edit(Activity a, Store.UserList list, Host host) {
         List<Ui.Opt> opts = new ArrayList<>();
         opts.add(new Ui.Opt("Renomear lista", () ->
@@ -60,13 +67,6 @@ public final class ListOptions {
                     Ui.say(a, "Lista renomeada");
                     host.changed();
                 })));
-        if (list.hasPlace()) opts.add(new Ui.Opt("Desligar a lista do local", () -> {
-            list.hasLoc = false;
-            list.cells.clear();
-            Store.get(a).saveLists();
-            Ui.say(a, "Local removido");
-            host.changed();
-        }));
         opts.add(new Ui.Opt("Excluir lista", () -> new AlertDialog.Builder(a)
                 .setTitle("Excluir a lista " + list.name + "?")
                 .setMessage("As linhas saem da lista. Os horários salvos continuam no celular.")

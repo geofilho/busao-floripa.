@@ -49,7 +49,7 @@ public class AjudaActivity extends Activity {
             "Cada linha já mostra quando o ônibus chega no seu ponto, da mais próxima para a mais distante.",
             "Toque numa linha para ver os horários de cada saída, marcar que o ônibus chegou, alterar os minutos ou remover da lista.",
             "O botão Tabela de hoje troca entre dias úteis, sábado e domingo. Use em feriados que o app não conhece.",
-            "O botão Opções da lista tem duas opções: Ligar a lista ao local onde estou agora, e Editar. Editar abre Renomear lista, Desligar a lista do local, quando ela tem um local, e Excluir lista.",
+            "O botão Opções da lista tem: Ligar a lista ao local onde estou agora; Desvincular a lista do local, que só aparece quando ela tem um local salvo; e Editar, que abre Renomear lista e Excluir lista.",
             "Quando você estiver a até 700 metros do local ligado à lista, ela aparece primeiro na tela inicial.",
             "Ligar ao local grava as células da rede da operadora, as antenas que o celular está vendo, e também a posição GPS, se o GPS responder. As células são lidas na hora, mesmo dentro de casa ou sem sinal de GPS.",
             "Para isso, a localização do celular precisa estar ligada: com ela desligada, o Android não deixa nenhum app ler o GPS nem as células. Se estiver desligada, o app avisa e abre a configuração.",
@@ -62,7 +62,7 @@ public class AjudaActivity extends Activity {
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",
             "Na busca de linhas: uma ação para cada saída e Adicionar a uma lista.",
-            "Na tela inicial, em cima de cada lista: Ligar a lista ao local onde estou agora, e Editar. São as mesmas opções do botão Opções da lista, sem precisar abrir a lista.",
+            "Na tela inicial, em cima de cada lista: Ligar a lista ao local onde estou agora, Desvincular a lista do local, quando houver, e Editar. São as mesmas opções do botão Opções da lista, sem precisar abrir a lista.",
             "Dentro das suas listas, em cima de cada linha: uma ação para cada saída, O ônibus chegou agora, Alterar minutos até o meu ponto e Remover da lista.",
 
             "#Atualização",
