@@ -24,6 +24,7 @@ public final class Providers {
             new Source("EST", "Estrela", "https://www.insulartc.com.br/estrela/"),
             new Source("STE", "Santa Terezinha", "https://santaterezinha.com/horarios/"),
             new Source("BIG", "Biguaçu", "https://www.tcbiguacu.com.br/horarios"),
+            new Source("JOT", "Jotur", JoturParser.INDEX),
     };
 
     public static boolean isFenix(String code) { return code == null || code.indexOf('#') < 0; }
@@ -64,6 +65,11 @@ public final class Providers {
             if (total == 0) throw new java.io.IOException("O site da Biguaçu respondeu sem horários que eu consiga ler (" + seen + ")");
             return tt;
         }
+        if (code != null && code.startsWith("JOT#")) {
+            FenixParser.Timetable tt = JoturParser.parseLine(Repo.fetch(url, false));
+            if (tt.departures.isEmpty()) throw new java.io.IOException("A Jotur não publicou horários desta linha no site");
+            return tt;
+        }
         if (!isFenix(code)) return parseLine(code, Repo.fetch(url, false));
         return parseLine(code, Repo.download(url));
     }
@@ -87,12 +93,14 @@ public final class Providers {
     }
 
     public static FenixParser.Timetable parseLine(String code, String html) {
+        if (code != null && code.startsWith("JOT#")) return JoturParser.parseLine(html);
         return isFenix(code) ? FenixParser.parseLine(html) : GenericParser.parseLine(html);
     }
 
     public static List<FenixParser.Line> parseIndex(Source s, String html) {
         if (s.prefix.equals("EST")) return GenericParser.parseIndexEstrela(html, s.indexUrl);
         if (s.prefix.equals("STE")) return GenericParser.parseIndexSantaTerezinha(html);
+        if (s.prefix.equals("JOT")) return JoturParser.parseIndex(html);
         return new ArrayList<>();
     }
 

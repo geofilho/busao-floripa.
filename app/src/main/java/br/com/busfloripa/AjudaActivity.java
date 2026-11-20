@@ -26,7 +26,7 @@ public class AjudaActivity extends Activity {
             "Quando há texto na busca, aparece à direita do campo o botão Limpar, que apaga o que foi digitado e mostra todas as linhas de novo. Com uma busca feita, o gesto de voltar também limpa a busca.",
 
             "#Transporte intermunicipal",
-            "Empresas: Biguaçu, Estrela e Santa Terezinha. Na Biguaçu entram também as linhas executivas.",
+            "Empresas: Biguaçu, Estrela, Jotur e Santa Terezinha. Na Biguaçu entram também as linhas executivas. Na Jotur, as saídas têm o nome do lugar de partida, por exemplo Saída ARIRIU e Saída FLORIANÓPOLIS.",
             "Funciona igual ao Fênix: busque a linha por número, nome ou empresa, toque nela, veja as saídas ou adicione a uma lista. Uma lista pode ter linhas do Fênix e intermunicipais juntas.",
             "As observações dos horários, como via Univali, via Ponte Pedro Ivo Campos ou adaptado, vêm do site da empresa e aparecem por extenso quando o site informa.",
             "As linhas intermunicipais não têm itinerário no site, então o botão Itinerário avisa isso.",
@@ -87,7 +87,7 @@ public class AjudaActivity extends Activity {
             "Mais opções, Dados, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
 
             "#Sobre os horários",
-            "Os horários vêm dos sites do Consórcio Fênix, da Biguaçu, da Estrela e da Santa Terezinha e podem mudar. Em caso de dúvida, confira no site da empresa.",
+            "Os horários vêm dos sites do Consórcio Fênix, da Biguaçu, da Estrela, da Jotur e da Santa Terezinha e podem mudar. Em caso de dúvida, confira no site da empresa.",
 
             "#Atualização do aplicativo",
             "Em Mais opções, Dados, Atualizar aplicativo, o app procura no GitHub se existe uma versão nova.",

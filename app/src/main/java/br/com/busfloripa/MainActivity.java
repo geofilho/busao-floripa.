@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
 
     // ---------- Fênix ou intermunicipal ----------
 
-    /** true = mostrando as linhas intermunicipais (Estrela, Santa Terezinha). */
+    /** true = mostrando as linhas intermunicipais (Biguaçu, Estrela, Jotur, Santa Terezinha). */
     private boolean inter;
 
     private void applyMode() {

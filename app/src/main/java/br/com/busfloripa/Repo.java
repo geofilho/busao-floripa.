@@ -126,7 +126,14 @@ public final class Repo {
         IO.execute(() -> {
             List<FenixParser.Line> cached = store.loadLines(Store.INTER_FILE);
             if (!cached.isEmpty()) MAIN.post(() -> cb.done(cached, null));
-            if (!force && !cached.isEmpty()) return;
+            // Empresa nova (sem nenhuma linha salva ainda): baixa já, sem esperar a atualização diária.
+            boolean missing = false;
+            for (Providers.Source s : Providers.INTER) {
+                boolean has = false;
+                for (FenixParser.Line l : cached) if (l.code.startsWith(s.prefix + "#")) { has = true; break; }
+                if (!has) { missing = true; break; }
+            }
+            if (!force && !cached.isEmpty() && !missing) return;
             List<FenixParser.Line> merged = new java.util.ArrayList<>();
             String lastErr = null;
             for (Providers.Source s : Providers.INTER) {

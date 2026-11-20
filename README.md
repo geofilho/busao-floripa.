@@ -35,7 +35,7 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
 - **Ações do TalkBack:** nas linhas da busca e das listas, as mesmas opções da janela.
 - **Intermunicipal:** botão na barra de cima alterna entre o Fênix e as linhas da Biguaçu (via as consultas internas do site tcbiguacu.com.br, `BiguacuParser.java`),
   Estrela (insulartc.com.br/estrela) e da Santa Terezinha (santaterezinha.com/horarios),
-  lidas por `GenericParser.java` (o leitor do Fênix não muda).
+  lidas por `GenericParser.java`, e da Jotur (www2.jotur.com.br/linhas, `JoturParser.java`). O leitor do Fênix não muda.
 - **Atualização do app:** Mais opções, Dados, Atualizar aplicativo lê a última versão em
   `api.github.com/repos/geofilho/busao-floripa./releases/latest` (tag `build-N` =
   versionCode N), mostra as novidades (mensagem do commit), baixa o APK e abre o
