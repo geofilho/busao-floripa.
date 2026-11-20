@@ -57,8 +57,16 @@ public final class Repo {
         c.setConnectTimeout(15000);
         c.setReadTimeout(20000);
         c.setInstanceFollowRedirects(true);
-        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android) BusFloripa/1.0");
-        c.setRequestProperty("Accept-Language", "pt-BR");
+        // Pede como o navegador de computador pede (alguns sites respondem diferente para apps).
+        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36");
+        c.setRequestProperty("Accept-Language", "pt-BR,pt;q=0.9");
+        c.setRequestProperty("Accept", "*/*");
+        if (url.contains("tcbiguacu.com.br/sistema/")) {
+            // As consultas da Biguaçu são feitas pela página de horários, com jQuery.
+            c.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+            c.setRequestProperty("Referer", "https://www.tcbiguacu.com.br/horarios");
+            c.setRequestProperty("Origin", "https://www.tcbiguacu.com.br");
+        }
         if (post) {
             c.setRequestMethod("POST");
             c.setDoOutput(true);

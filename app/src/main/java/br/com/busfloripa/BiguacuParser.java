@@ -85,6 +85,7 @@ public final class BiguacuParser {
             FenixParser.Departure d;
             if (idx < 0) { d = new FenixParser.Departure(dep); tt.departures.add(d); } else d = tt.departures.get(idx);
             Matcher li = LI.matcher(block);
+            int before = d.total();
             while (li.find()) {
                 String item = li.group();
                 Matcher h = HOUR.matcher(item);
@@ -102,6 +103,14 @@ public final class BiguacuParser {
                     if (!note.isEmpty()) flags.add(legendKey(tt.legend, note));
                 }
                 d.days.get(day).add(new FenixParser.Trip(hh * 60 + mm, String.join(" ", flags)));
+            }
+            if (d.total() == before) {
+                // Formato diferente do esperado: pega qualquer horário escrito sozinho numa marcação.
+                Matcher any = Pattern.compile(">\\s*(\\d{1,2}):(\\d{2})\\s*<").matcher(block);
+                while (any.find()) {
+                    int hh = Integer.parseInt(any.group(1)), mm = Integer.parseInt(any.group(2));
+                    if (hh <= 29 && mm <= 59) d.days.get(day).add(new FenixParser.Trip(hh * 60 + mm, ""));
+                }
             }
         }
     }

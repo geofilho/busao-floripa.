@@ -48,6 +48,12 @@ public class BiguacuTest {
         check(b.days.get(0).get(3).min == 1440 + 5, "00:05 é madrugada");
         check(tt.departures.get(1).days.get(0).get(0).flags.equals("V2") && b.days.get(1).get(0).flags.equals("V2"), "mesma observação reaproveita o código, sem diferença de maiúsculas");
 
+        // Formato diferente (sem class="hour"): ainda pega os horários
+        Timetable t2 = new Timetable();
+        BiguacuParser.parseDay("<div class=\"hours-line\"><div class=\"title\">Partida: Fundos</div><ul><li><span>05:00</span></li><li><b>05:30</b></li></ul></div>", 1, t2);
+        BiguacuParser.finish(t2);
+        check(t2.departures.size() == 1 && t2.departures.get(0).days.get(0).size() == 2, "formato diferente: ainda lê os horários");
+
         System.out.println(fails == 0 ? "\nTodos os testes da Biguaçu passaram." : "\n" + fails + " falha(s).");
         System.exit(fails == 0 ? 0 : 1);
     }

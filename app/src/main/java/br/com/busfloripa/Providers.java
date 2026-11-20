@@ -50,8 +50,18 @@ public final class Providers {
         if (code != null && code.startsWith("BIG#")) {
             // Biguaçu: uma consulta por tipo de dia (1 = dias úteis, 2 = sábado, 3 = domingo).
             FenixParser.Timetable tt = new FenixParser.Timetable();
-            for (int d = 1; d <= 3; d++) BiguacuParser.parseDay(Repo.fetch(url + "&id_day_week=" + d, true), d, tt);
+            StringBuilder seen = new StringBuilder();
+            for (int d = 1; d <= 3; d++) {
+                String html = Repo.fetch(url + "&id_day_week=" + d, true);
+                if (seen.length() == 0) seen.append(html.length()).append(" caracteres: ")
+                        .append(FenixParser.norm(html.replaceAll("<[^>]*>", " ")).replaceAll("\\s+", " ")
+                                .substring(0, Math.min(120, FenixParser.norm(html.replaceAll("<[^>]*>", " ")).length())));
+                BiguacuParser.parseDay(html, d, tt);
+            }
             BiguacuParser.finish(tt);
+            int total = 0;
+            for (FenixParser.Departure dep : tt.departures) total += dep.total();
+            if (total == 0) throw new java.io.IOException("O site da Biguaçu respondeu sem horários que eu consiga ler (" + seen + ")");
             return tt;
         }
         if (!isFenix(code)) return parseLine(code, Repo.fetch(url, false));
