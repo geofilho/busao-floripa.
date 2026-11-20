@@ -25,12 +25,20 @@ public final class Store {
         public String title() { return Providers.title(code, name); }
     }
 
+    /** Ponto de ônibus no Google Maps, com o nome dado por você. */
+    public static final class Stop {
+        public String name, url;
+        public Stop(String name, String url) { this.name = name; this.url = url; }
+    }
+
     public static final class UserList {
         public String id = UUID.randomUUID().toString(), name = "", maps = "";
         public boolean hasLoc;
         public double lat, lon;
         /** Células da operadora vistas no local da lista (ver Cells). */
         public final List<String> cells = new ArrayList<>();
+        /** Pontos no Google Maps, na ordem em que foram adicionados. */
+        public final List<Stop> stops = new ArrayList<>();
         /** A lista está ligada a um local (GPS ou células)? */
         public boolean hasPlace() { return hasLoc || !cells.isEmpty(); }
         public final List<Item> items = new ArrayList<>();
@@ -202,6 +210,13 @@ public final class Store {
             UserList l = new UserList();
             l.id = o.getString("id"); l.name = o.getString("name");
             l.hasLoc = o.optBoolean("hasLoc"); l.maps = o.optString("maps"); l.lat = o.optDouble("lat", 0); l.lon = o.optDouble("lon", 0);
+            JSONArray st = o.optJSONArray("stops");
+            if (st != null) for (int k = 0; k < st.length(); k++) {
+                JSONObject so = st.optJSONObject(k);
+                if (so != null && !so.optString("url").isEmpty()) l.stops.add(new Stop(so.optString("name"), so.optString("url")));
+            }
+            // Link antigo (versões anteriores tinham um link só): vira o primeiro ponto.
+            if (l.stops.isEmpty() && l.maps != null && !l.maps.isEmpty()) l.stops.add(new Stop("Ponto", l.maps));
             JSONArray cl = o.optJSONArray("cells");
             if (cl != null) for (int k = 0; k < cl.length(); k++) l.cells.add(cl.optString(k));
             JSONArray items = o.getJSONArray("items");
@@ -234,10 +249,16 @@ public final class Store {
             JSONArray cl = new JSONArray();
             for (String c : l.cells) cl.put(c);
             JSONObject o = new JSONObject().put("id", l.id).put("name", l.name).put("hasLoc", l.hasLoc).put("maps", l.maps)
-                    .put("cells", cl).put("items", items);
+                    .put("cells", cl).put("stops", stopsJson(l.stops)).put("items", items);
             if (l.hasLoc) o.put("lat", l.lat).put("lon", l.lon);
             a.put(o);
         }
+        return a;
+    }
+
+    private static JSONArray stopsJson(List<Stop> stops) throws org.json.JSONException {
+        JSONArray a = new JSONArray();
+        for (Stop s : stops) a.put(new JSONObject().put("name", s.name).put("url", s.url));
         return a;
     }
 

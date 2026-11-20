@@ -28,11 +28,106 @@ public final class ListOptions {
     /** Lista esperando a permissão de localização para gravar o local. */
     private static String pendingId;
 
-    /** Ação do TalkBack em cima da lista na tela inicial: abre o mesmo menu do botão Opções da lista. */
+    public static final String REALTIME = "Verificar horário em tempo real no Google Maps";
+
+    /** Ações do TalkBack em cima da lista na tela inicial. */
     public static List<Ui.Opt> actions(Activity a, Store.UserList list, Host host) {
         List<Ui.Opt> out = new ArrayList<>();
+        out.add(new Ui.Opt(REALTIME, () -> chooseStop(a, list, host)));
         out.add(new Ui.Opt("Opções da lista", () -> show(a, list, host)));
         return out;
+    }
+
+    // ---------- pontos do Google Maps ----------
+
+    /** Menu com os pontos salvos (pelo nome, na ordem em que foram adicionados); abre o escolhido no Maps. */
+    public static void chooseStop(Activity a, Store.UserList list, Host host) {
+        if (list.stops.isEmpty()) {
+            new AlertDialog.Builder(a)
+                    .setTitle(REALTIME)
+                    .setMessage("A lista " + list.name + " ainda não tem pontos do Google Maps. Adicione o link do ponto "
+                            + "onde você pega o ônibus.")
+                    .setPositiveButton("Adicionar ponto", (d, w) -> addStop(a, list, host))
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+            return;
+        }
+        String[] names = new String[list.stops.size()];
+        for (int i = 0; i < names.length; i++) names[i] = list.stops.get(i).name;
+        new AlertDialog.Builder(a)
+                .setTitle("Horário em tempo real: escolha o ponto")
+                .setItems(names, (d, w) -> openStop(a, list.stops.get(w)))
+                .setNegativeButton("Fechar", null)
+                .show();
+    }
+
+    /** Abre o ponto no app do Google Maps (ou no navegador, se não tiver o app). */
+    public static void openStop(Activity a, Store.Stop s) {
+        android.net.Uri uri = android.net.Uri.parse(s.url);
+        try {
+            a.startActivity(new Intent(Intent.ACTION_VIEW, uri).setPackage("com.google.android.apps.maps"));
+            return;
+        } catch (Exception ignored) { }
+        try { a.startActivity(new Intent(Intent.ACTION_VIEW, uri)); }
+        catch (Exception e) { Ui.say(a, "Não encontrei um app para abrir o link"); }
+    }
+
+    /** Nome e link do ponto, num quadro só. */
+    public static void addStop(Activity a, Store.UserList list, Host host) {
+        android.widget.LinearLayout box = new android.widget.LinearLayout(a);
+        box.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int p = Ui.dp(a, 20);
+        box.setPadding(p, Ui.dp(a, 8), p, 0);
+        android.widget.EditText name = new android.widget.EditText(a);
+        name.setHint("Nome do ponto, por exemplo Ponto da padaria");
+        name.setContentDescription("Nome do ponto");
+        name.setTextSize(20);
+        name.setMinHeight(Ui.dp(a, 56));
+        name.setSingleLine(true);
+        name.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        name.setImportantForAutofill(android.view.View.IMPORTANT_FOR_AUTOFILL_NO);
+        android.widget.EditText link = new android.widget.EditText(a);
+        link.setHint("Link do ponto no Google Maps");
+        link.setContentDescription("Link do ponto no Google Maps");
+        link.setTextSize(20);
+        link.setMinHeight(Ui.dp(a, 56));
+        link.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI);
+        link.setImportantForAutofill(android.view.View.IMPORTANT_FOR_AUTOFILL_NO);
+        box.addView(name);
+        box.addView(link);
+        new AlertDialog.Builder(a)
+                .setTitle("Adicionar ponto do Google Maps")
+                .setMessage("No Google Maps, abra o ponto de ônibus, toque em Compartilhar e copie o link. "
+                        + "Dê um nome ao ponto e cole o link aqui.")
+                .setView(box)
+                .setPositiveButton("Salvar", (d, w) -> {
+                    String url = MapsLink.firstUrl(link.getText().toString());
+                    String n = name.getText().toString().trim();
+                    if (url == null) { Ui.say(a, "Ponto não salvo: não encontrei um link"); return; }
+                    if (n.isEmpty()) n = "Ponto " + (list.stops.size() + 1);
+                    list.stops.add(new Store.Stop(n, url));
+                    Store.get(a).saveLists();
+                    Ui.say(a, "Ponto " + n + " adicionado à lista " + list.name);
+                    host.changed();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+        name.requestFocus();
+    }
+
+    public static void removeStop(Activity a, Store.UserList list, Host host) {
+        String[] names = new String[list.stops.size()];
+        for (int i = 0; i < names.length; i++) names[i] = list.stops.get(i).name;
+        new AlertDialog.Builder(a)
+                .setTitle("Remover qual ponto?")
+                .setItems(names, (d, w) -> {
+                    Store.Stop s = list.stops.remove(w);
+                    Store.get(a).saveLists();
+                    Ui.say(a, "Ponto " + s.name + " removido");
+                    host.changed();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     /** As quatro opções da lista, num menu só. */
@@ -48,6 +143,9 @@ public final class ListOptions {
             Ui.say(a, "Lista " + list.name + " desvinculada da posição");
             host.changed();
         }));
+        opts.add(new Ui.Opt(REALTIME, () -> chooseStop(a, list, host)));
+        opts.add(new Ui.Opt("Adicionar ponto do Google Maps", () -> addStop(a, list, host)));
+        if (!list.stops.isEmpty()) opts.add(new Ui.Opt("Remover ponto do Google Maps", () -> removeStop(a, list, host)));
         opts.add(new Ui.Opt("Renomear lista", () ->
                 Ui.askText(a, "Renomear lista", null, list.name, "Nome da lista", false, name -> {
                     if (name.isEmpty()) return;

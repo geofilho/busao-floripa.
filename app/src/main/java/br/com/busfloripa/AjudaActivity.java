@@ -49,7 +49,7 @@ public class AjudaActivity extends Activity {
             "Cada linha já mostra quando o ônibus chega no seu ponto, da mais próxima para a mais distante.",
             "Toque numa linha para ver os horários de cada saída, marcar que o ônibus chegou, alterar os minutos ou remover da lista.",
             "O botão Tabela de hoje troca entre dias úteis, sábado e domingo. Use em feriados que o app não conhece.",
-            "O botão Opções da lista tem quatro opções: Vincular a lista à posição onde estou agora, Desvincular a lista da posição, Renomear lista e Excluir lista.",
+            "O botão Opções da lista tem: Vincular a lista à posição onde estou agora, Desvincular a lista da posição, Verificar horário em tempo real no Google Maps, Adicionar ponto do Google Maps, Remover ponto do Google Maps, Renomear lista e Excluir lista.",
             "Quando você estiver a até 700 metros do local ligado à lista, ela aparece primeiro na tela inicial.",
             "Vincular à posição grava as células da rede da operadora, as antenas que o celular está vendo, e também a posição GPS, se o GPS responder. As células são lidas na hora, mesmo dentro de casa ou sem sinal de GPS.",
             "Para isso, a localização do celular precisa estar ligada: com ela desligada, o Android não deixa nenhum app ler o GPS nem as células. Se estiver desligada, o app avisa e abre a configuração.",
@@ -59,11 +59,17 @@ public class AjudaActivity extends Activity {
             "Na tela de horários de uma linha, o botão Itinerário mostra, em ordem, as ruas e lugares por onde ela passa, na ida e na volta. O site do Fênix não informa os pontos de parada, só as ruas.",
             "A lista começa na saída que você escolheu: no terminal, ou no ponto final do bairro. Se o app não conseguir achar a saída na lista, mostra na ordem do site.",
 
+            "#Horário em tempo real no Google Maps",
+            "O Google Maps mostra as partidas em tempo real dos ônibus em cada ponto. O Busão Floripa G abre o Maps direto no ponto certo.",
+            "Para isso, salve os pontos de cada lista: em Opções da lista, Adicionar ponto do Google Maps. Dê um nome ao ponto e cole o link dele. Para pegar o link, no Google Maps abra o ponto de ônibus e toque em Compartilhar.",
+            "Pode adicionar quantos pontos quiser em cada lista, por exemplo quando linhas diferentes passam em pontos diferentes.",
+            "Para ver o tempo real, use Verificar horário em tempo real no Google Maps: no botão Tempo real, no canto de cima da tela da lista, ou nas ações do TalkBack. Abre um menu com os pontos pelo nome, na ordem em que foram adicionados. Escolha um e o Google Maps abre nele.",
+
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",
             "Na busca de linhas: uma ação para cada saída e Adicionar a uma lista.",
-            "Na tela inicial, em cima de cada lista: a ação Opções da lista, que abre o mesmo menu do botão Opções da lista, sem precisar abrir a lista.",
-            "Dentro das suas listas, em cima de cada linha: uma ação para cada saída, O ônibus chegou agora, Alterar minutos até o meu ponto e Remover da lista.",
+            "Na tela inicial, em cima de cada lista: Verificar horário em tempo real no Google Maps, e Opções da lista, que abre o mesmo menu do botão Opções da lista, sem precisar abrir a lista.",
+            "Dentro das suas listas, em cima de cada linha: uma ação para cada saída, O ônibus chegou agora, Verificar horário em tempo real no Google Maps, Alterar minutos até o meu ponto e Remover da lista.",
 
             "#Atualização",
             "Na primeira vez que você abre o app no dia, os horários são atualizados.",
@@ -75,7 +81,7 @@ public class AjudaActivity extends Activity {
             "Em Mais opções, Dados, Diagnóstico, toque em Copiar relatório e envie o texto para quem cuida do app.",
 
             "#Backup",
-            "Mais opções, Dados, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, e os locais das listas, com posição GPS e células da operadora. Você escolhe onde salvar, por exemplo no Google Drive.",
+            "Mais opções, Dados, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais das listas, com posição GPS e células da operadora, e os pontos do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
             "Mais opções, Dados, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
 
             "#Sobre os horários",

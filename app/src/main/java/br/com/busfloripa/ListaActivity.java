@@ -194,6 +194,18 @@ public class ListaActivity extends Activity {
         }
     }
 
+    @Override public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        android.view.MenuItem rt = menu.add(0, 1, 0, "Tempo real");
+        rt.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS | android.view.MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        rt.setContentDescription(ListOptions.REALTIME);
+        return true;
+    }
+
+    @Override public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        if (item.getItemId() == 1) { ListOptions.chooseStop(this, list, host); return true; }
+        return super.onOptionsItemSelected(item);
+    }
+
     /** O que acontece na tela depois das opções da lista. */
     private final ListOptions.Host host = new ListOptions.Host() {
         @Override public void status(String text) { status.setText(text); }
