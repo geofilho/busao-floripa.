@@ -52,7 +52,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="Limpar busca"
-            android:text="Limpar" />
+            android:text="Limpar"
+            android:visibility="gone" />
     </LinearLayout>
 
     <TextView

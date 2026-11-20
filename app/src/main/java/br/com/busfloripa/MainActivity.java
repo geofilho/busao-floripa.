@@ -8,6 +8,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -58,9 +59,11 @@ public class MainActivity extends Activity {
             Ui.lineActions(this, l.code, l.name, l.url, null, null, this::renderLists);
         });
 
-        findViewById(R.id.clearSearch).setOnClickListener(v -> {
-            if (search.getText().length() == 0) { Ui.say(this, "A busca já está vazia"); return; }
+        View clearBtn = findViewById(R.id.clearSearch);
+        clearBtn.setOnClickListener(v -> {
             clearSearch();
+            // O botão some; o foco volta para o campo de busca, pronto para digitar de novo.
+            search.requestFocus();
             Ui.say(this, "Busca limpa");
         });
         search.setOnFocusChangeListener((v, has) -> {
@@ -69,7 +72,11 @@ public class MainActivity extends Activity {
         search.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int c, int d) { }
             @Override public void onTextChanged(CharSequence s, int a, int c, int d) { }
-            @Override public void afterTextChanged(Editable s) { filter(); }
+            @Override public void afterTextChanged(Editable s) {
+                // Botão Limpar só aparece quando há texto na busca.
+                clearBtn.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+                filter();
+            }
         });
 
         inter = getSharedPreferences("tela", MODE_PRIVATE).getBoolean("inter", false);
