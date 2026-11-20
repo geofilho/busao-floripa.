@@ -399,7 +399,7 @@ public class MainActivity extends Activity {
         dados.add(0, 4, 0, "Fazer backup");
         dados.add(0, 5, 0, "Restaurar backup");
         dados.add(0, 3, 0, "Diagnóstico");
-        dados.add(0, 8, 0, "Atualização");
+        dados.add(0, 8, 0, "Atualizar aplicativo");
         return true;
     }
 

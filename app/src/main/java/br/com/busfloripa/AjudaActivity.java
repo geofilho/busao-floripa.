@@ -18,7 +18,7 @@ public class AjudaActivity extends Activity {
             "À esquerda de Mais opções fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix.",
             "Em Mais opções ficam três opções: Atualizar linhas e horários, Como usar e Dados.",
             "Atualizar linhas e horários baixa na hora, dos sites das empresas, a lista de linhas e os horários das linhas que você usa. O app já faz isso sozinho uma vez por dia; use quando quiser os horários mais novos agora.",
-            "Dados abre Fazer backup, Restaurar backup, Diagnóstico e Atualização.",
+            "Dados abre Fazer backup, Restaurar backup, Diagnóstico e Atualizar aplicativo.",
 
             "#Tela inicial",
             "No topo ficam suas listas. Embaixo, a busca de linhas por número ou nome, sem precisar de acento.",
@@ -76,7 +76,7 @@ public class AjudaActivity extends Activity {
             "Os horários vêm dos sites do Consórcio Fênix, da Biguaçu, da Estrela e da Santa Terezinha e podem mudar. Em caso de dúvida, confira no site da empresa.",
 
             "#Atualização do aplicativo",
-            "Em Mais opções, Dados, Atualização, o app procura no GitHub se existe uma versão nova.",
+            "Em Mais opções, Dados, Atualizar aplicativo, o app procura no GitHub se existe uma versão nova.",
             "Se existir, ele mostra a versão instalada, a versão nova e as novidades, e pergunta se você quer baixar. Toque em OK, baixar.",
             "Depois de baixar, o app confere se o arquivo é mesmo do Busão Floripa G e abre o instalador do Android. Toque em Atualizar ou Instalar.",
             "Na primeira atualização, o Android pede permissão para o Busão Floripa G instalar aplicativos. O app explica e abre a tela certa: ative Permitir desta fonte e volte. A instalação continua sozinha.",
@@ -89,7 +89,7 @@ public class AjudaActivity extends Activity {
             "3. Abra o arquivo baixado, pela notificação de download ou pelo app Arquivos.",
             "4. Se o Android disser que, por segurança, seu celular não pode instalar apps desta fonte, toque em Configurações, ative Permitir desta fonte e volte.",
             "5. Toque em Instalar. Depois, em Abrir.",
-            "Para atualizar depois, use Mais opções, Dados, Atualização. Não precisa baixar pelo navegador de novo.",
+            "Para atualizar depois, use Mais opções, Dados, Atualizar aplicativo. Não precisa baixar pelo navegador de novo.",
 
             "#Permissões do Android e do Google Play",
             "Internet: usada para baixar linhas e horários e buscar atualizações. O Android libera sozinho, não pergunta.",

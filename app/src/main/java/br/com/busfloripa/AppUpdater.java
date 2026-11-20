@@ -61,7 +61,7 @@ final class AppUpdater {
             ui.post(() -> {
                 busy = false;
                 if (act.isFinishing()) return;
-                if (err != null) message("Atualização", err);
+                if (err != null) message("Atualizar aplicativo", err);
                 else showResult(result);
             });
         }).start();
@@ -100,7 +100,7 @@ final class AppUpdater {
             localName = pi.versionName;
         } catch (Exception ignored) { }
         if (remoteCode <= localCode || apkUrl.isEmpty()) {
-            message("Atualização", "Você já está com a versão mais recente, " + localName + ".");
+            message("Atualizar aplicativo", "Você já está com a versão mais recente, " + localName + ".");
             return;
         }
         StringBuilder msg = new StringBuilder();
@@ -119,7 +119,7 @@ final class AppUpdater {
 
     private void downloadApk(final String url) {
         final AlertDialog wait = new AlertDialog.Builder(act)
-                .setTitle("Atualização")
+                .setTitle("Atualizar aplicativo")
                 .setMessage("Baixando a atualização, aguarde.")
                 .setCancelable(false)
                 .show();
@@ -140,7 +140,7 @@ final class AppUpdater {
                 try { wait.dismiss(); } catch (Exception ignored) { }
                 if (act.isFinishing()) return;
                 if (success) install();
-                else message("Atualização", "Não foi possível baixar a atualização. Tente de novo mais tarde.");
+                else message("Atualizar aplicativo", "Não foi possível baixar a atualização. Tente de novo mais tarde.");
             });
         }).start();
     }
@@ -175,7 +175,7 @@ final class AppUpdater {
         try {
             act.startActivity(i);
         } catch (ActivityNotFoundException e) {
-            message("Atualização", "O instalador do Android não abriu.");
+            message("Atualizar aplicativo", "O instalador do Android não abriu.");
         }
     }
 
