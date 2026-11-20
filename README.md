@@ -32,10 +32,13 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
   linhas, minutos, local GPS e link do Google Maps. Restaurar backup traz de volta
   (substituindo ou juntando com as listas atuais).
 - **Ações do TalkBack:** nas linhas da busca e das listas, as mesmas opções da janela.
-- **Intermunicipal:** botão na barra de cima alterna entre o Fênix e as linhas da
+- **Intermunicipal:** botão na barra de cima alterna entre o Fênix e as linhas da Biguaçu (via as consultas internas do site tcbiguacu.com.br, `BiguacuParser.java`),
   Estrela (insulartc.com.br/estrela) e da Santa Terezinha (santaterezinha.com/horarios),
-  lidas por `GenericParser.java` (o leitor do Fênix não muda). Biguaçu: pendente,
-  o site carrega os horários por JavaScript.
+  lidas por `GenericParser.java` (o leitor do Fênix não muda).
+- **Atualização do app:** Mais opções, Dados, Atualização lê a última versão em
+  `api.github.com/repos/geofilho/busao-floripa./releases/latest` (tag `build-N` =
+  versionCode N), mostra as novidades (mensagem do commit), baixa o APK e abre o
+  instalador (mesmo esquema do Gerenciador de TTS G). O repositório precisa ser público.
 - **Feriados:** feriados nacionais, Sexta-feira Santa e 23/03 usam a tabela de
   domingo. Na lista, o botão "Tabela de hoje" troca a tabela manualmente.
 

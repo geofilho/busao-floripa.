@@ -49,7 +49,8 @@ public final class GenericParser {
                         String name = FenixParser.norm(buf.toString());
                         String shown = lastCode != null ? lastCode : fm.group(1).replaceFirst("^0+(?=\\d)", "");
                         String key = "EST#" + fm.group(1);
-                        String url = absolute(href, baseUrl);
+                        // O site redireciona http -> https, e o Android não segue essa troca: usa https direto.
+                        String url = absolute(href, baseUrl).replaceFirst("^http://", "https://");
                         if (!name.isEmpty() && !out.containsKey(key))
                             out.put(key, new FenixParser.Line(key, shown + " " + name, url, "Estrela"));
                         href = null; buf = null;
@@ -110,7 +111,8 @@ public final class GenericParser {
     static int dayOf(String text) {
         String f = FenixParser.fold(text);
         if (f.isEmpty() || f.length() > 35) return -1;
-        if (f.matches("(de )?segunda a sexta( feira)?|dias? ute?is|dia util|seg a sex|segunda a sexta feira")) return FenixParser.UTEIS;
+        if (f.matches("(de )?segunda a sexta( feira)?|dias? ute?is|dia util|seg a sex|segunda a sexta feira")
+                || f.matches("2a? a 6a?( feira)?( dias? ute?is)?") || f.endsWith(" dias uteis")) return FenixParser.UTEIS;
         if (f.matches("sabados?|sabados? e vesperas?.*")) return FenixParser.SABADO;
         if (f.matches("dom[ia]n?gos?( e feriados?)?|dom[ia]n?gos? feriados?|feriados?|domingos?/feriados?")) return FenixParser.DOMINGO;
         return -1;
@@ -189,7 +191,7 @@ public final class GenericParser {
 
         String dep = null;
         int day = -1;
-        int tableDepth = 0, col = -1;
+        int tableDepth = 0, col = -1, colStart = -1;
         boolean headerRow = false;
         Map<Integer, Integer> colDay = new LinkedHashMap<>();
         Map<Integer, String> colDep = new LinkedHashMap<>();
@@ -216,7 +218,15 @@ public final class GenericParser {
                         if (!close) { col = -1; headerRow = false; }
                         continue;
                     case "td": case "th":
-                        if (!close) { col++; if (tag.equals("th")) headerRow = true; }
+                        if (!close) {
+                            // Célula larga (colspan) cobre várias colunas: colStart..col.
+                            int span = 1;
+                            String sp = FenixParser.attr(m.group(3), "colspan");
+                            if (sp != null) try { span = Math.max(1, Integer.parseInt(sp.trim())); } catch (NumberFormatException ignored) { }
+                            colStart = col + 1;
+                            col += span;
+                            if (tag.equals("th")) headerRow = true;
+                        }
                         continue;
                     case "a":
                         if (!close) { inAnchor = true; anchor.setLength(0); continue; }
@@ -243,14 +253,14 @@ public final class GenericParser {
                 if (n.isEmpty()) continue;
                 int d = dayOf(n);
                 if (d >= 0) {
-                    if (tableDepth > 0 && col >= 0) colDay.put(col, d);
+                    if (tableDepth > 0 && col >= 0) for (int k = Math.max(colStart, 0); k <= col; k++) colDay.put(k, d);
                     day = d;
                     lastTrip[0] = null;
                     continue;
                 }
                 String s = saidaName(n);
                 if (s != null) {
-                    if (tableDepth > 0 && col >= 0) colDep.put(col, s);
+                    if (tableDepth > 0 && col >= 0) for (int k = Math.max(colStart, 0); k <= col; k++) colDep.put(k, s);
                     if (!s.equals(dep)) day = -1;
                     dep = s;
                     lastTrip[0] = null;
@@ -259,8 +269,8 @@ public final class GenericParser {
                 List<String> fl = new ArrayList<>();
                 List<int[]> ts = times(n, fl);
                 if (ts != null) {
-                    String useDep = tableDepth > 0 && colDep.containsKey(col) ? colDep.get(col) : dep;
-                    int useDay = tableDepth > 0 && colDay.containsKey(col) ? colDay.get(col) : day;
+                    String useDep = tableDepth > 0 && colDep.containsKey(colStart) ? colDep.get(colStart) : dep;
+                    int useDay = tableDepth > 0 && colDay.containsKey(colStart) ? colDay.get(colStart) : day;
                     if (useDep == null) useDep = "Saída";
                     if (useDay < 0) useDay = FenixParser.UTEIS;
                     List<List<FenixParser.Trip>> days = data.get(useDep);
@@ -288,6 +298,8 @@ public final class GenericParser {
                     lastTrip[0] = nt;
                     continue;
                 }
+                Matcher star = Pattern.compile("^\\*\\s*(.{3,90})$").matcher(n);
+                if (star.find()) { tt.legend.put("*", star.group(1).trim()); lastTrip[0] = null; continue; }
                 Matcher lg = LEGEND.matcher(n);
                 if (lg.find() && !n.contains("R$")) {
                     String key = lg.group(1).replace(".", "");

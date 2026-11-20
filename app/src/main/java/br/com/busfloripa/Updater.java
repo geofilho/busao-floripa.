@@ -169,7 +169,7 @@ public final class Updater {
                 int before = 0;
                 for (FenixParser.Line l : interOld) if (l.code.startsWith(s.prefix + "#")) before++;
                 try {
-                    List<FenixParser.Line> fresh = Providers.parseIndex(s, Repo.download(s.indexUrl));
+                    List<FenixParser.Line> fresh = Providers.loadIndex(s);
                     if (fresh.isEmpty()) {
                         r.add(ERRO, "Linhas da " + s.company + ": o site abriu, mas não encontrei nenhuma linha. O site pode ter mudado.");
                         keep(interOld, interNew, s);
@@ -215,7 +215,7 @@ public final class Updater {
             FenixParser.Timetable old = store.loadTimetable(code);
             FenixParser.Timetable tt;
             try {
-                tt = Providers.parseLine(code, Repo.download(url));
+                tt = Providers.load(code, url);
             } catch (Exception ex) {
                 if (Repo.isNetwork(ex)) {
                     r.noInternet = true;

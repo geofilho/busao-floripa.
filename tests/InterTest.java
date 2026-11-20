@@ -20,7 +20,7 @@ public class InterTest {
         List<Line> le = GenericParser.parseIndexEstrela(ie, "http://www.insulartc.com.br/estrela/");
         check(le.size() == 3, "Estrela: 3 linhas (" + le.size() + ")");
         check(le.get(0).code.equals("EST#0317") && le.get(0).name.equals("317 Campinas Via Kobrasol") && le.get(0).category.equals("Estrela"), "Estrela: código e nome " + le.get(0).name);
-        check(le.get(1).name.startsWith("039.0/1/3/4 ") && le.get(1).url.equals("http://www.insulartc.com.br/estrela/ws1/linhas/horarios/intermunicipal/0039.htm"), "Estrela: código composto e endereço " + le.get(1).url);
+        check(le.get(1).name.startsWith("039.0/1/3/4 ") && le.get(1).url.equals("https://www.insulartc.com.br/estrela/ws1/linhas/horarios/intermunicipal/0039.htm") && le.get(0).url.startsWith("https://"), "Estrela: código composto e endereço " + le.get(1).url);
         check(le.get(2).name.equals("7633 Executivo San Marino"), "Estrela: sem célula de código usa o arquivo " + le.get(2).name);
 
         // Índice Santa Terezinha: menu repetido, links com e sem /horarios/
@@ -62,6 +62,27 @@ public class InterTest {
         Timetable t3 = GenericParser.parseLine(tb);
         Departure bg = t3.departures.get(0);
         check(bg.name.equals("Biguaçu") && bg.days.get(0).size() == 2 && bg.days.get(1).size() == 2 && bg.days.get(2).size() == 1, "tabela com colunas por dia");
+
+        // Página real da Estrela (linha 763, tabela do Excel com colunas largas por dia)
+        String E = "<td></td>";
+        StringBuilder r = new StringBuilder("<table>");
+        r.append("<tr>" + E + "<td colspan=6>763 - Los Angeles via Palmares</td></tr>");
+        r.append("<tr>" + E + "<td>TARIFA Cartão / Dinheiro (R$):</td><td>R$ 7,24 (C) / R$ 7,50 (D)</td><td>Data Atualização</td></tr><tr>" + E + "<td>27.08.2026</td></tr>");
+        String head = "<tr>" + E + "<td colspan=3>2ª a 6ª (Dias Úteis)</td><td colspan=2>Sábados</td><td>Domingos e Feriados</td></tr>";
+        r.append("<tr>" + E + "<td colspan=6>Partidas do Bairro (Ida)</td></tr>").append(head);
+        String[][] ida = {{"05.15", "07.50", "", "09.00", "", "10.00"}, {"06.10", "08.30", "", "", "", ""}, {"06.30", "11.00", "", "", "", ""}, {"06.50", "13.10*", "", "", "", ""}};
+        for (String[] row : ida) { r.append("<tr>" + E); for (String c : row) r.append("<td>").append(c).append("</td>"); r.append("</tr>"); }
+        r.append("<tr>" + E + "<td colspan=6>Partidas do TICEN / Fpolis. (Volta)</td></tr>").append(head);
+        String[][] volta = {{"12.20", "18.45", "", "", "", ""}, {"15.00", "", "", "", "", ""}, {"16.50", "", "", "", "", ""}};
+        for (String[] row : volta) { r.append("<tr>" + E); for (String c : row) r.append("<td>").append(c).append("</td>"); r.append("</tr>"); }
+        r.append("<tr>" + E + "<td>Observações:</td><td></td><td colspan=4>Alteração de 05.20 p/ 05.15 a partir de 31/08/2026</td></tr>");
+        r.append("<tr>" + E + E + "<td colspan=4>* Previsão de horário</td></tr></table>");
+        Timetable t5 = GenericParser.parseLine(r.toString());
+        check(t5.departures.size() == 2 && t5.departures.get(0).name.equals("Bairro") && t5.departures.get(1).name.equals("TICEN / Fpolis"), "Estrela real: saídas " + (t5.departures.isEmpty() ? "-" : t5.departures.get(0).name + " | " + t5.departures.get(t5.departures.size() - 1).name));
+        Departure ida5 = t5.departures.get(0);
+        check(ida5.days.get(0).size() == 8 && ida5.days.get(1).size() == 1 && ida5.days.get(2).size() == 1, "Estrela real: ida 8 dias úteis, 1 sábado, 1 domingo (" + ida5.days.get(0).size() + "/" + ida5.days.get(1).size() + "/" + ida5.days.get(2).size() + ")");
+        check(t5.departures.get(1).days.get(0).size() == 4 && t5.departures.get(1).days.get(1).isEmpty(), "Estrela real: volta 4 dias úteis");
+        check("Previsão de horário".equals(t5.legend.get("*")), "Estrela real: legenda do asterisco " + t5.legend);
 
         // Dois ônibus no mesmo minuto com vias diferentes
         Timetable t4 = GenericParser.parseLine("<p>Saída Centro</p><p>Segunda a sexta</p><p>05.50LA</p><p>05.50VF</p>");

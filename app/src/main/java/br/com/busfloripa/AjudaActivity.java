@@ -17,16 +17,16 @@ public class AjudaActivity extends Activity {
             "#Barra de cima",
             "À esquerda de Mais opções fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix.",
             "Em Mais opções ficam três opções: Atualizar agora, Como usar e Dados.",
-            "Dados abre Fazer backup, Restaurar backup e Diagnóstico.",
+            "Dados abre Fazer backup, Restaurar backup, Diagnóstico e Atualização.",
 
             "#Tela inicial",
             "No topo ficam suas listas. Embaixo, a busca de linhas por número ou nome, sem precisar de acento.",
             "Com uma busca feita, o gesto de voltar limpa a busca.",
 
             "#Transporte intermunicipal",
-            "Por enquanto: Estrela e Santa Terezinha. A Biguaçu ainda não está disponível.",
+            "Empresas: Biguaçu, Estrela e Santa Terezinha. Na Biguaçu entram também as linhas executivas.",
             "Funciona igual ao Fênix: busque a linha por número, nome ou empresa, toque nela, veja as saídas ou adicione a uma lista. Uma lista pode ter linhas do Fênix e intermunicipais juntas.",
-            "As letras ao lado dos horários, como via Univali ou via Shopping Continente, vêm da legenda do site da empresa e aparecem escritas por extenso quando o site informa.",
+            "As observações dos horários, como via Univali, via Ponte Pedro Ivo Campos ou adaptado, vêm do site da empresa e aparecem por extenso quando o site informa.",
             "As linhas intermunicipais não têm itinerário no site, então o botão Itinerário avisa isso.",
 
             "#Criar uma lista",
@@ -72,7 +72,34 @@ public class AjudaActivity extends Activity {
             "Mais opções, Dados, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
 
             "#Sobre os horários",
-            "Os horários vêm do site do Consórcio Fênix e podem mudar. Em caso de dúvida, confira no site.",
+            "Os horários vêm dos sites do Consórcio Fênix, da Biguaçu, da Estrela e da Santa Terezinha e podem mudar. Em caso de dúvida, confira no site da empresa.",
+
+            "#Atualização do aplicativo",
+            "Em Mais opções, Dados, Atualização, o app procura no GitHub se existe uma versão nova.",
+            "Se existir, ele mostra a versão instalada, a versão nova e as novidades, e pergunta se você quer baixar. Toque em OK, baixar.",
+            "Depois de baixar, o app confere se o arquivo é mesmo do Busão Floripa G e abre o instalador do Android. Toque em Atualizar ou Instalar.",
+            "Na primeira atualização, o Android pede permissão para o Busão Floripa G instalar aplicativos. O app explica e abre a tela certa: ative Permitir desta fonte e volte. A instalação continua sozinha.",
+            "Suas listas, minutos, medições e locais continuam salvos depois de atualizar.",
+            "Se aparecer que não foi possível verificar, confira a internet. Se disser que não encontrou versões, o repositório do app no GitHub precisa estar público.",
+
+            "#Como instalar o aplicativo pela primeira vez",
+            "1. No navegador do celular, abra a página de versões do app no GitHub, na seção Releases do repositório busao-floripa, e toque em BusaoFloripa.apk para baixar.",
+            "2. Se o navegador avisar que o arquivo pode ser perigoso, toque em Baixar mesmo assim. O aviso aparece para qualquer app de fora da Play Store.",
+            "3. Abra o arquivo baixado, pela notificação de download ou pelo app Arquivos.",
+            "4. Se o Android disser que, por segurança, seu celular não pode instalar apps desta fonte, toque em Configurações, ative Permitir desta fonte e volte.",
+            "5. Toque em Instalar. Depois, em Abrir.",
+            "Para atualizar depois, use Mais opções, Dados, Atualização. Não precisa baixar pelo navegador de novo.",
+
+            "#Permissões do Android e do Google Play",
+            "Internet: usada para baixar linhas e horários e buscar atualizações. O Android libera sozinho, não pergunta.",
+            "Localização: só é pedida quando você liga uma lista ao local onde está. Pode escolher Durante o uso do app. A localização fica só no celular e serve para colocar a lista certa no topo.",
+            "Instalar aplicativos: só é pedida na primeira atualização pelo próprio app. Serve para abrir o instalador com a versão nova.",
+            "Google Play Protect: como o app não vem da Play Store, o Play Protect pode avisar que o app não foi verificado ou oferecer verificar o app. Toque em Mais detalhes e depois em Instalar mesmo assim. Se perguntar se quer enviar o app para verificação, tanto faz a resposta.",
+            "Verificação de desenvolvedor: desde 30 de setembro de 2026, no Brasil, o Android pode recusar apps de desenvolvedores não verificados. Se aparecer essa recusa, é preciso ativar uma vez o fluxo avançado.",
+            "Fluxo avançado, passo 1: em Configurações, Sobre o telefone, toque 7 vezes em Número da versão para ativar as Opções do desenvolvedor.",
+            "Passo 2: em Configurações, Sistema, Opções do desenvolvedor, ative a opção que permite apps de desenvolvedores não verificados. O nome pode mudar um pouco conforme a marca do celular.",
+            "Passo 3: confirme que ninguém está pedindo para você fazer isso, reinicie o celular e espere 24 horas. Depois disso, a instalação funciona normalmente.",
+            "Isso só é feito uma vez por celular. As atualizações seguintes do app não pedem de novo.",
     };
 
     @Override protected void onCreate(Bundle b) {

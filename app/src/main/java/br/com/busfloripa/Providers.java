@@ -21,8 +21,9 @@ public final class Providers {
 
     /** Empresas intermunicipais com leitura pronta. */
     public static final Source[] INTER = {
-            new Source("EST", "Estrela", "http://www.insulartc.com.br/estrela/"),
+            new Source("EST", "Estrela", "https://www.insulartc.com.br/estrela/"),
             new Source("STE", "Santa Terezinha", "https://santaterezinha.com/horarios/"),
+            new Source("BIG", "Biguaçu", "https://www.tcbiguacu.com.br/horarios"),
     };
 
     public static boolean isFenix(String code) { return code == null || code.indexOf('#') < 0; }
@@ -44,6 +45,37 @@ public final class Providers {
         return isFenix(code) ? code + ", " + name : name + ", " + company(code);
     }
 
+    /** Baixa e lê os horários de uma linha de qualquer empresa. Faz acesso à internet. */
+    public static FenixParser.Timetable load(String code, String url) throws java.io.IOException {
+        if (code != null && code.startsWith("BIG#")) {
+            // Biguaçu: uma consulta por tipo de dia (1 = dias úteis, 2 = sábado, 3 = domingo).
+            FenixParser.Timetable tt = new FenixParser.Timetable();
+            for (int d = 1; d <= 3; d++) BiguacuParser.parseDay(Repo.fetch(url + "&id_day_week=" + d, true), d, tt);
+            BiguacuParser.finish(tt);
+            return tt;
+        }
+        if (!isFenix(code)) return parseLine(code, Repo.fetch(url, false));
+        return parseLine(code, Repo.download(url));
+    }
+
+    /** Baixa e lê a lista de linhas de uma empresa intermunicipal. Faz acesso à internet. */
+    public static List<FenixParser.Line> loadIndex(Source s) throws java.io.IOException {
+        if (s.prefix.equals("BIG")) {
+            List<FenixParser.Line> out = new ArrayList<>(BiguacuParser.parseIndex(Repo.fetch(BiguacuParser.searchUrl(0), true), false));
+            try {
+                for (FenixParser.Line l : BiguacuParser.parseIndex(Repo.fetch(BiguacuParser.searchUrl(5), true), true)) {
+                    boolean dup = false;
+                    for (FenixParser.Line o : out) if (o.code.equals(l.code)) { dup = true; break; }
+                    if (!dup) out.add(l);
+                }
+            } catch (java.io.IOException e) {
+                if (out.isEmpty()) throw e; // sem as executivas, segue com as convencionais
+            }
+            return out;
+        }
+        return parseIndex(s, Repo.fetch(s.indexUrl, false));
+    }
+
     public static FenixParser.Timetable parseLine(String code, String html) {
         return isFenix(code) ? FenixParser.parseLine(html) : GenericParser.parseLine(html);
     }
@@ -61,9 +93,9 @@ public final class Providers {
         Map<String, String> lg = tt == null ? null : tt.legend;
         List<String> out = new ArrayList<>();
         for (String f : flags.split("\\s+")) {
-            String key = f.replace("*", "");
+            String key = f.equals("*") ? "*" : f.replace("*", "");
             String desc = lg == null ? null : lg.get(key);
-            if (f.equals("*")) desc = "horário com observação";
+            if (f.equals("*") && desc == null) desc = "horário com observação";
             out.add(desc != null ? desc.toLowerCase(java.util.Locale.ROOT) : f);
         }
         return String.join(", ", out);

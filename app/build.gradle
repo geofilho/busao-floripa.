@@ -10,8 +10,10 @@ android {
         applicationId 'br.com.busfloripa'
         minSdk 26
         targetSdk 35
-        versionCode 1
-        versionName '1.0'
+        // Cada build do GitHub Actions tem um número maior (build-N): é ele que a busca de atualização compara.
+        def build = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer
+        versionCode build
+        versionName "1.${build}"
     }
 
     // Chave fixa: cada APK novo instala por cima do anterior sem perder suas listas.

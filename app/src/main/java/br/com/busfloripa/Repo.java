@@ -48,6 +48,49 @@ public final class Repo {
         } finally { c.disconnect(); }
     }
 
+    /**
+     * Download para os sites intermunicipais que precisam de POST (Biguaçu) e usam codificações
+     * diferentes em cada resposta: lê a codificação informada pelo site (UTF-8 se não informar).
+     */
+    static String fetch(String url, boolean post) throws IOException {
+        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        c.setConnectTimeout(15000);
+        c.setReadTimeout(20000);
+        c.setInstanceFollowRedirects(true);
+        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android) BusFloripa/1.0");
+        c.setRequestProperty("Accept-Language", "pt-BR");
+        if (post) {
+            c.setRequestMethod("POST");
+            c.setDoOutput(true);
+            c.setFixedLengthStreamingMode(0);
+            c.getOutputStream().close();
+        }
+        try {
+            int code = c.getResponseCode();
+            if (code != 200) throw new IOException("O site respondeu com erro " + code);
+            String charset = null;
+            java.util.regex.Pattern cs = java.util.regex.Pattern.compile("(?i)charset\\s*=\\s*[\"']?([\\w-]+)");
+            String ct = c.getContentType();
+            if (ct != null) {
+                java.util.regex.Matcher m = cs.matcher(ct);
+                if (m.find()) charset = m.group(1);
+            }
+            try (InputStream in = c.getInputStream()) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] buf = new byte[16384];
+                int n;
+                while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+                if (charset == null) {
+                    // Sem codificação no cabeçalho: procura <meta ... charset=...> no começo da página.
+                    String head = new String(out.toByteArray(), 0, Math.min(out.size(), 4096), "ISO-8859-1");
+                    java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?i)<meta[^>]*charset\\s*=\\s*[\"']?([\\w-]+)").matcher(head);
+                    charset = m.find() ? m.group(1) : "UTF-8";
+                }
+                try { return out.toString(charset); } catch (java.io.UnsupportedEncodingException e) { return out.toString("UTF-8"); }
+            }
+        } finally { c.disconnect(); }
+    }
+
     /** Lista de todas as linhas. Usa a cópia salva e atualiza se estiver velha. */
     public void lines(boolean force, Callback<List<FenixParser.Line>> cb) {
         IO.execute(() -> {
@@ -80,7 +123,7 @@ public final class Repo {
             String lastErr = null;
             for (Providers.Source s : Providers.INTER) {
                 try {
-                    List<FenixParser.Line> l = Providers.parseIndex(s, download(s.indexUrl));
+                    List<FenixParser.Line> l = Providers.loadIndex(s);
                     if (l.isEmpty()) throw new IOException("não encontrei linhas no site da " + s.company);
                     merged.addAll(l);
                 } catch (Exception e) {
@@ -102,7 +145,7 @@ public final class Repo {
     public void download(String code, String name, String url, Callback<FenixParser.Timetable> cb) {
         IO.execute(() -> {
             try {
-                FenixParser.Timetable tt = Providers.parseLine(code, download(url));
+                FenixParser.Timetable tt = Providers.load(code, url);
                 tt.code = code;
                 tt.name = name;
                 int total = 0;

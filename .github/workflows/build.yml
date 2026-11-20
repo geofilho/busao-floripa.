@@ -29,6 +29,9 @@ jobs:
       - name: Compilar APK
         run: gradle --no-daemon assembleRelease
 
+      - name: Novidades desta versão
+        run: (git log -1 --pretty=%B | grep -v -e '^Co-Authored-By' -e '^Claude-Session' || true) > novidades.txt
+
       - name: Renomear
         run: cp app/build/outputs/apk/release/app-release.apk BusaoFloripa.apk
 
@@ -43,4 +46,5 @@ jobs:
           tag_name: build-${{ github.run_number }}
           name: Busão Floripa G ${{ github.run_number }}
           make_latest: true
+          body_path: novidades.txt
           files: BusaoFloripa.apk

@@ -38,6 +38,7 @@ public class MainActivity extends Activity {
         super.onCreate(b);
         setContentView(R.layout.activity_main);
         repo = new Repo(this);
+        appUpdater = new AppUpdater(this);
         listsBox = findViewById(R.id.listsBox);
         listsScroll = findViewById(R.id.listsScroll);
         search = findViewById(R.id.search);
@@ -98,8 +99,11 @@ public class MainActivity extends Activity {
         if (inter) all.sort(Providers::compare); else all.sort(MainActivity::byNumber);
     }
 
+    private AppUpdater appUpdater;
+
     @Override protected void onResume() {
         super.onResume();
+        if (appUpdater != null) appUpdater.onResume();
         renderLists();
         dailyUpdate();
         boolean anyLoc = false;
@@ -383,6 +387,7 @@ public class MainActivity extends Activity {
         dados.add(0, 4, 0, "Fazer backup");
         dados.add(0, 5, 0, "Restaurar backup");
         dados.add(0, 3, 0, "Diagnóstico");
+        dados.add(0, 8, 0, "Atualização");
         return true;
     }
 
@@ -395,6 +400,10 @@ public class MainActivity extends Activity {
         }
         if (item.getItemId() == 3) {
             openDiagnostico();
+            return true;
+        }
+        if (item.getItemId() == 8) {
+            appUpdater.check();
             return true;
         }
         if (item.getItemId() == 7) {
