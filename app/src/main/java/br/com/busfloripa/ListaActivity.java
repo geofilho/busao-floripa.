@@ -3,7 +3,6 @@ package br.com.busfloripa;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -198,23 +197,16 @@ public class ListaActivity extends Activity {
 
     private void options() {
         List<String> opts = new ArrayList<>();
-        boolean hasMaps = list.maps != null && !list.maps.isEmpty();
-        if (hasMaps) opts.add("Abrir o ponto no Google Maps");
-        opts.add(hasMaps ? "Trocar o link do Google Maps do ponto" : "Colar o link do Google Maps do ponto");
         opts.add("Renomear lista");
-        opts.add(list.hasLoc ? "Ligar a lista ao local onde estou agora (troca o local salvo)"
+        opts.add(list.hasPlace() ? "Ligar a lista ao local onde estou agora (troca o local salvo)"
                 : "Ligar a lista ao local onde estou agora");
-        if (list.hasLoc) opts.add("Desligar a lista do local");
+        if (list.hasPlace()) opts.add("Desligar a lista do local");
         opts.add("Excluir lista");
         new AlertDialog.Builder(this)
                 .setTitle("Opções da lista " + list.name)
                 .setItems(opts.toArray(new String[0]), (d, w) -> {
                     String o = opts.get(w);
-                    if (o.startsWith("Abrir")) {
-                        openMaps();
-                    } else if (o.contains("link do Google Maps")) {
-                        askMapsLink();
-                    } else if (o.startsWith("Renomear")) {
+                    if (o.startsWith("Renomear")) {
                         Ui.askText(this, "Renomear lista", null, list.name, "Nome da lista", false, name -> {
                             if (name.isEmpty()) return;
                             list.name = name;
@@ -227,6 +219,7 @@ public class ListaActivity extends Activity {
                         if (Loc.granted(this)) saveLocation(); else Loc.request(this);
                     } else if (o.startsWith("Desligar")) {
                         list.hasLoc = false;
+                        list.cells.clear();
                         Store.get(this).saveLists();
                         Ui.say(this, "Local removido");
                     } else {
@@ -247,58 +240,47 @@ public class ListaActivity extends Activity {
                 .show();
     }
 
-    private void openMaps() {
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(list.maps)));
-        } catch (Exception e) {
-            Ui.say(this, "Não encontrei um app para abrir o link");
-        }
-    }
-
-    private void askMapsLink() {
-        Ui.askText(this, "Link do Google Maps do ponto",
-                "No Google Maps, abra o ponto de ônibus, toque em Compartilhar, copie o link e cole aqui. "
-                        + "A lista fica ligada a esse ponto e você pode abri-lo no Maps com um toque.",
-                list.maps, "Cole o link aqui", false, text -> {
-                    String url = MapsLink.firstUrl(text);
-                    if (url == null) { Ui.say(this, "Não encontrei um link no texto colado"); return; }
-                    list.maps = url;
-                    Store.get(this).saveLists();
-                    status.setText("Link salvo. Buscando a localização do ponto…");
-                    new Thread(() -> {
-                        double[] c = null;
-                        try { c = MapsLink.resolve(url); } catch (Exception ignored) { }
-                        final double[] coords = c;
-                        runOnUiThread(() -> {
-                            if (isFinishing()) return;
-                            if (coords == null) {
-                                status.setText("Link salvo. Não consegui tirar a localização dele; "
-                                        + "se quiser, use Ligar a lista ao local onde estou agora.");
-                                return;
-                            }
-                            list.hasLoc = true;
-                            list.lat = coords[0];
-                            list.lon = coords[1];
-                            Store.get(this).saveLists();
-                            status.setText("Ponto salvo. Quando você estiver perto dele, esta lista aparece primeiro.");
-                        });
-                    }).start();
-                });
-    }
-
+    /**
+     * Grava o local da lista: as células da operadora na hora (funciona mesmo sem sinal de GPS)
+     * e, se o GPS ou a rede responderem, também a posição.
+     */
     private void saveLocation() {
-        status.setText("Buscando sua localização…");
+        if (!Cells.locationOn(this)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Localização desligada")
+                    .setMessage("A localização do celular está desligada. Com ela desligada, o Android não deixa nenhum app "
+                            + "ler o GPS nem as células da operadora. Ligue a localização e tente de novo.")
+                    .setPositiveButton("Abrir configuração", (d, w) -> {
+                        try { startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)); }
+                        catch (Exception e) { Ui.say(this, "Não consegui abrir a configuração"); }
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+            return;
+        }
+        List<String> now = Cells.current(this);
+        if (!now.isEmpty()) {
+            list.cells.clear();
+            list.cells.addAll(now);
+            list.hasLoc = false;
+            Store.get(this).saveLists();
+        }
+        final int nCells = now.size();
+        status.setText(nCells > 0 ? "Células da operadora salvas (" + nCells + "). Buscando também a posição GPS…"
+                : "Buscando sua localização…");
         Loc.current(this, 60 * 1000, loc -> {
             if (isFinishing()) return;
-            if (loc == null) {
-                status.setText("Não consegui sua localização. Verifique se a localização do celular está ligada.");
-                return;
+            if (loc != null) {
+                list.hasLoc = true;
+                list.lat = loc.getLatitude();
+                list.lon = loc.getLongitude();
+                Store.get(this).saveLists();
             }
-            list.hasLoc = true;
-            list.lat = loc.getLatitude();
-            list.lon = loc.getLongitude();
-            Store.get(this).saveLists();
-            status.setText("Local salvo. Quando você estiver perto daqui, esta lista aparece primeiro.");
+            String cellsTxt = nCells == 0 ? "" : nCells == 1 ? "1 célula da operadora" : nCells + " células da operadora";
+            if (loc != null && nCells > 0) status.setText("Local salvo: posição GPS e " + cellsTxt + ". Quando você estiver aqui, esta lista aparece primeiro.");
+            else if (loc != null) status.setText("Local salvo: posição GPS. As células da operadora não puderam ser lidas neste celular.");
+            else if (nCells > 0) status.setText("Local salvo com " + cellsTxt + ". O GPS não respondeu, mas as células já bastam para reconhecer este lugar.");
+            else status.setText("Não consegui sua localização nem as células da operadora. Verifique se a localização está ligada e tente de novo.");
         });
     }
 

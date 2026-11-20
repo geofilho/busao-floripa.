@@ -15,11 +15,12 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
 - **Minutos até o ponto:** 0 = horário programado de saída. Para pegar em outro
   ponto, use "O ônibus chegou agora": o app mede o tempo real de viagem e usa a
   mediana das últimas 5 medições.
-- **GPS:** em Opções da lista, ligue a lista a um local. Quando você estiver
-  a até 500 m dali, ela aparece primeiro na tela inicial.
-- **Link do Google Maps:** em Opções da lista, cole o link compartilhado do ponto
-  de ônibus. O app tira a localização do link (não precisa estar no ponto) e
-  ganha a opção "Abrir o ponto no Google Maps", onde aparecem as próximas passagens.
+- **Local da lista:** em Opções da lista, "Ligar a lista ao local onde estou agora" grava as
+  células da operadora (`Cells.java`, lidas na hora) e a posição GPS se houver. A lista sobe
+  para o topo quando uma célula bate ou o GPS está a até 700 m. Exige a localização do
+  aparelho ligada (regra do Android 9+).
+- **Pontos:** botão na barra abre o Google Maps com a busca "pontos de ônibus".
+
 - **Offline:** linhas e horários ficam salvos no celular e funcionam sem internet.
 - **Atualização diária:** na primeira vez que o app é aberto no dia, baixa a lista de
   linhas e os horários de todas as linhas salvas. Sem internet, tenta de novo na

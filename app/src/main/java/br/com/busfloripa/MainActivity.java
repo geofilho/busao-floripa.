@@ -107,6 +107,20 @@ public class MainActivity extends Activity {
         loadLines(false);
     }
 
+    /** Google Maps com a busca "pontos de ônibus" perto de onde você está. */
+    private void openNearbyStops() {
+        android.net.Uri geo = android.net.Uri.parse("geo:0,0?q=" + android.net.Uri.encode("pontos de ônibus"));
+        Intent maps = new Intent(Intent.ACTION_VIEW, geo).setPackage("com.google.android.apps.maps");
+        try { startActivity(maps); return; } catch (Exception ignored) { }
+        try { startActivity(new Intent(Intent.ACTION_VIEW, geo)); return; } catch (Exception ignored) { }
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
+                    "https://www.google.com/maps/search/?api=1&query=" + android.net.Uri.encode("pontos de ônibus"))));
+        } catch (Exception e) {
+            Ui.say(this, "Não encontrei o Google Maps neste celular");
+        }
+    }
+
     private void sortLines() {
         if (inter) all.sort(Providers::compare); else all.sort(MainActivity::byNumber);
     }
@@ -116,6 +130,10 @@ public class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         if (appUpdater != null) appUpdater.onResume();
+        // Células da operadora: lidas na hora, sem esperar o GPS.
+        boolean anyPlace = false;
+        for (Store.UserList l : Store.get(this).lists()) anyPlace |= l.hasPlace();
+        nowCells = anyPlace && Loc.granted(this) && Cells.locationOn(this) ? Cells.current(this) : new ArrayList<>();
         renderLists();
         dailyUpdate();
         boolean anyLoc = false;
@@ -124,9 +142,33 @@ public class MainActivity extends Activity {
             Loc.current(this, 3 * 60 * 1000, loc -> {
                 if (loc == null || isFinishing()) return;
                 lastLoc = loc;
+                learnCells();
                 renderLists();
             });
         }
+    }
+
+    private List<String> nowCells = new ArrayList<>();
+
+    /**
+     * O GPS confirmou que você está no local de uma lista: guarda as células vistas agora também.
+     * Assim a lista passa a ser reconhecida pelas células mesmo quando o GPS não responder.
+     */
+    private void learnCells() {
+        if (lastLoc == null || nowCells.isEmpty()) return;
+        boolean changed = false;
+        for (Store.UserList l : Store.get(this).lists()) {
+            if (!l.hasLoc || Loc.distance(lastLoc, l.lat, l.lon) > Loc.NEAR_METERS) continue;
+            int before = l.cells.size();
+            Cells.merge(l.cells, nowCells);
+            changed |= l.cells.size() != before;
+        }
+        if (changed) Store.get(this).saveLists();
+    }
+
+    private boolean isNear(Store.UserList l) {
+        if (lastLoc != null && l.hasLoc && Loc.distance(lastLoc, l.lat, l.lon) <= Loc.NEAR_METERS) return true;
+        return Cells.match(l.cells, nowCells);
     }
 
     /** Primeira abertura do dia: atualiza tudo. Sem internet, tenta de novo na próxima abertura. */
@@ -282,13 +324,12 @@ public class MainActivity extends Activity {
         List<Store.UserList> lists = new ArrayList<>(Store.get(this).lists());
         // Listas perto de você vão para o topo.
         List<Store.UserList> near = new ArrayList<>();
-        if (lastLoc != null) {
-            for (Store.UserList l : lists)
-                if (l.hasLoc && Loc.distance(lastLoc, l.lat, l.lon) <= Loc.NEAR_METERS) near.add(l);
-            near.sort((x, y) -> Float.compare(Loc.distance(lastLoc, x.lat, x.lon), Loc.distance(lastLoc, y.lat, y.lon)));
-            lists.removeAll(near);
-            lists.addAll(0, near);
-        }
+        for (Store.UserList l : lists) if (isNear(l)) near.add(l);
+        if (lastLoc != null)
+            near.sort((x, y) -> Float.compare(x.hasLoc ? Loc.distance(lastLoc, x.lat, x.lon) : Float.MAX_VALUE,
+                    y.hasLoc ? Loc.distance(lastLoc, y.lat, y.lon) : Float.MAX_VALUE));
+        lists.removeAll(near);
+        lists.addAll(0, near);
         for (Store.UserList l : lists) {
             Button btn = new Button(this);
             int n = l.items.size();
@@ -388,6 +429,10 @@ public class MainActivity extends Activity {
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
+        // Botão na barra: abre o Google Maps já buscando pontos de ônibus perto de você.
+        MenuItem pts = menu.add(0, 9, 0, "Pontos");
+        pts.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        pts.setContentDescription("Localizar pontos de ônibus próximos no Google Maps");
         // Botão na barra, à esquerda de Mais opções: alterna entre Fênix e intermunicipal.
         MenuItem sw = menu.add(0, 7, 0, inter ? "Fênix" : "Intermunicipal");
         sw.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -412,6 +457,10 @@ public class MainActivity extends Activity {
         }
         if (item.getItemId() == 3) {
             openDiagnostico();
+            return true;
+        }
+        if (item.getItemId() == 9) {
+            openNearbyStops();
             return true;
         }
         if (item.getItemId() == 8) {

@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 public final class Loc {
 
     public static final int REQUEST = 41;
-    public static final float NEAR_METERS = 500f;
+    public static final float NEAR_METERS = 700f;
 
     private Loc() { }
 

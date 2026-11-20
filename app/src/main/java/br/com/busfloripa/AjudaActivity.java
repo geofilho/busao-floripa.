@@ -15,7 +15,8 @@ public class AjudaActivity extends Activity {
     /** "#" no início = título. */
     private static final String[] TEXT = {
             "#Barra de cima",
-            "À esquerda de Mais opções fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix.",
+            "O botão Pontos abre o Google Maps já pesquisando pontos de ônibus, mostrando os mais próximos de onde você está.",
+            "À direita dele fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix.",
             "Em Mais opções ficam três opções: Atualizar linhas e horários, Como usar e Dados.",
             "Atualizar linhas e horários baixa na hora, dos sites das empresas, a lista de linhas e os horários das linhas que você usa. O app já faz isso sozinho uma vez por dia; use quando quiser os horários mais novos agora.",
             "Dados abre Fazer backup, Restaurar backup, Diagnóstico e Atualizar aplicativo.",
@@ -48,7 +49,10 @@ public class AjudaActivity extends Activity {
             "Cada linha já mostra quando o ônibus chega no seu ponto, da mais próxima para a mais distante.",
             "Toque numa linha para ver os horários de cada saída, marcar que o ônibus chegou, alterar os minutos ou remover da lista.",
             "O botão Tabela de hoje troca entre dias úteis, sábado e domingo. Use em feriados que o app não conhece.",
-            "Em Opções da lista você renomeia, exclui e liga a lista a um local: onde você está agora ou o link do Google Maps do ponto. Perto desse local, a lista aparece primeiro na tela inicial.",
+            "Em Opções da lista você renomeia, exclui e liga a lista ao local onde você está agora. Quando você estiver a até 700 metros desse local, a lista aparece primeiro na tela inicial.",
+            "Ligar ao local grava as células da rede da operadora, as antenas que o celular está vendo, e também a posição GPS, se o GPS responder. As células são lidas na hora, mesmo dentro de casa ou sem sinal de GPS.",
+            "Para isso, a localização do celular precisa estar ligada: com ela desligada, o Android não deixa nenhum app ler o GPS nem as células. Se estiver desligada, o app avisa e abre a configuração.",
+            "Com o tempo, sempre que o GPS confirmar que você está no local, o app aprende as outras antenas daquele lugar, e a lista passa a ser reconhecida com mais facilidade.",
 
             "#Itinerário",
             "Na tela de horários de uma linha, o botão Itinerário mostra, em ordem, as ruas e lugares por onde ela passa, na ida e na volta. O site do Fênix não informa os pontos de parada, só as ruas.",
@@ -69,7 +73,7 @@ public class AjudaActivity extends Activity {
             "Em Mais opções, Dados, Diagnóstico, toque em Copiar relatório e envie o texto para quem cuida do app.",
 
             "#Backup",
-            "Mais opções, Dados, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais GPS e os links do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
+            "Mais opções, Dados, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, e os locais das listas, com posição GPS e células da operadora. Você escolhe onde salvar, por exemplo no Google Drive.",
             "Mais opções, Dados, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
 
             "#Sobre os horários",
@@ -93,7 +97,7 @@ public class AjudaActivity extends Activity {
 
             "#Permissões do Android e do Google Play",
             "Internet: usada para baixar linhas e horários e buscar atualizações. O Android libera sozinho, não pergunta.",
-            "Localização: só é pedida quando você liga uma lista ao local onde está. Pode escolher Durante o uso do app. A localização fica só no celular e serve para colocar a lista certa no topo.",
+            "Localização: só é pedida quando você liga uma lista ao local onde está. Escolha Durante o uso do app e, se perguntar, Localização exata. Ela é usada para a posição GPS e para ler as células da operadora; tudo fica só no celular e serve para colocar a lista certa no topo.",
             "Instalar aplicativos: só é pedida na primeira atualização pelo próprio app. Serve para abrir o instalador com a versão nova.",
             "Google Play Protect: como o app não vem da Play Store, o Play Protect pode avisar que o app não foi verificado ou oferecer verificar o app. Toque em Mais detalhes e depois em Instalar mesmo assim. Se perguntar se quer enviar o app para verificação, tanto faz a resposta.",
             "Verificação de desenvolvedor: desde 30 de setembro de 2026, no Brasil, o Android pode recusar apps de desenvolvedores não verificados. Se aparecer essa recusa, é preciso ativar uma vez o fluxo avançado.",

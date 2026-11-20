@@ -29,6 +29,10 @@ public final class Store {
         public String id = UUID.randomUUID().toString(), name = "", maps = "";
         public boolean hasLoc;
         public double lat, lon;
+        /** Células da operadora vistas no local da lista (ver Cells). */
+        public final List<String> cells = new ArrayList<>();
+        /** A lista está ligada a um local (GPS ou células)? */
+        public boolean hasPlace() { return hasLoc || !cells.isEmpty(); }
         public final List<Item> items = new ArrayList<>();
     }
 
@@ -198,6 +202,8 @@ public final class Store {
             UserList l = new UserList();
             l.id = o.getString("id"); l.name = o.getString("name");
             l.hasLoc = o.optBoolean("hasLoc"); l.maps = o.optString("maps"); l.lat = o.optDouble("lat", 0); l.lon = o.optDouble("lon", 0);
+            JSONArray cl = o.optJSONArray("cells");
+            if (cl != null) for (int k = 0; k < cl.length(); k++) l.cells.add(cl.optString(k));
             JSONArray items = o.getJSONArray("items");
             for (int j = 0; j < items.length(); j++) {
                 JSONObject x = items.getJSONObject(j);
@@ -225,7 +231,10 @@ public final class Store {
                         .put("dep", it.dep).put("depIdx", it.depIdx).put("offset", it.offset)
                         .put("samples", sm));
             }
-            JSONObject o = new JSONObject().put("id", l.id).put("name", l.name).put("hasLoc", l.hasLoc).put("maps", l.maps).put("items", items);
+            JSONArray cl = new JSONArray();
+            for (String c : l.cells) cl.put(c);
+            JSONObject o = new JSONObject().put("id", l.id).put("name", l.name).put("hasLoc", l.hasLoc).put("maps", l.maps)
+                    .put("cells", cl).put("items", items);
             if (l.hasLoc) o.put("lat", l.lat).put("lon", l.lon);
             a.put(o);
         }
