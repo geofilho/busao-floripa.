@@ -64,7 +64,7 @@ public final class ListOptions {
             if (pos < list.stops.size() - 1) o.add(new Ui.Opt("Mover para baixo", () -> moveStop(a, list, pos, pos + 1, names, ad[0], lv)));
             o.add(new Ui.Opt("Editar", () -> {
                 if (dlg[0] != null) dlg[0].dismiss();
-                stopDialog(a, list, host, list.stops.get(pos));
+                stopDialog(a, list, host, list.stops.get(pos), null);
             }));
             return o;
         });
@@ -109,21 +109,10 @@ public final class ListOptions {
         catch (Exception e) { Ui.say(a, "Não encontrei um app para abrir o link"); }
     }
 
-    /** Escolher um dos pontos pelo nome. */
-    private static void pickStop(Activity a, Store.UserList list, String title, java.util.function.IntConsumer then) {
-        String[] names = new String[list.stops.size()];
-        for (int i = 0; i < names.length; i++) names[i] = list.stops.get(i).name;
-        new AlertDialog.Builder(a)
-                .setTitle(title)
-                .setItems(names, (d, w) -> then.accept(w))
-                .setNegativeButton("Cancelar", null)
-                .show();
-    }
-
-    public static void addStop(Activity a, Store.UserList list, Host host) { stopDialog(a, list, host, null); }
+    public static void addStop(Activity a, Store.UserList list, Host host) { stopDialog(a, list, host, null, null); }
 
     /** Nome e link do ponto, num quadro só. Com existing, edita esse ponto; sem, adiciona um novo. */
-    public static void stopDialog(Activity a, Store.UserList list, Host host, Store.Stop existing) {
+    public static void stopDialog(Activity a, Store.UserList list, Host host, Store.Stop existing, Runnable after) {
         android.widget.LinearLayout box = new android.widget.LinearLayout(a);
         box.setOrientation(android.widget.LinearLayout.VERTICAL);
         int p = Ui.dp(a, 20);
@@ -160,53 +149,28 @@ public final class ListOptions {
                         existing.url = url;
                         Store.get(a).saveLists();
                         Ui.say(a, "Ponto " + existing.name + " alterado");
-                        host.changed();
+                        if (host != null) host.changed();
+                        if (after != null) after.run();
                         return;
                     }
                     if (n.isEmpty()) n = "Ponto " + (list.stops.size() + 1);
                     list.stops.add(new Store.Stop(n, url));
                     Store.get(a).saveLists();
                     Ui.say(a, "Ponto " + n + " adicionado à lista " + list.name);
-                    host.changed();
+                    if (host != null) host.changed();
+                    if (after != null) after.run();
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
         name.requestFocus();
     }
 
-    public static void removeStop(Activity a, Store.UserList list, Host host) {
-        String[] names = new String[list.stops.size()];
-        for (int i = 0; i < names.length; i++) names[i] = list.stops.get(i).name;
-        new AlertDialog.Builder(a)
-                .setTitle("Remover qual ponto?")
-                .setItems(names, (d, w) -> {
-                    Store.Stop s = list.stops.remove(w);
-                    Store.get(a).saveLists();
-                    Ui.say(a, "Ponto " + s.name + " removido");
-                    host.changed();
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
-    }
-
     /** As quatro opções da lista, num menu só. */
     static List<Ui.Opt> options(Activity a, Store.UserList list, Host host) {
         List<Ui.Opt> opts = new ArrayList<>();
-        opts.add(new Ui.Opt(list.hasPlace() ? "Vincular a lista à posição onde estou agora, troca a posição salva"
-                : "Vincular a lista à posição onde estou agora", () -> link(a, list, host)));
-        opts.add(new Ui.Opt("Desvincular a lista da posição", () -> {
-            if (!list.hasPlace()) { Ui.say(a, "A lista " + list.name + " não está vinculada a nenhuma posição"); return; }
-            list.hasLoc = false;
-            list.cells.clear();
-            Store.get(a).saveLists();
-            Ui.say(a, "Lista " + list.name + " desvinculada da posição");
-            host.changed();
-        }));
+        opts.add(new Ui.Opt("Vincular a lista à posição", () -> positionMenu(a, list, host)));
         opts.add(new Ui.Opt(REALTIME, () -> chooseStop(a, list, host)));
-        opts.add(new Ui.Opt("Adicionar ponto do Google Maps", () -> addStop(a, list, host)));
-        if (!list.stops.isEmpty()) opts.add(new Ui.Opt("Editar ponto do Google Maps", () -> pickStop(a, list, "Editar qual ponto?",
-                i -> stopDialog(a, list, host, list.stops.get(i)))));
-        if (!list.stops.isEmpty()) opts.add(new Ui.Opt("Remover ponto do Google Maps", () -> removeStop(a, list, host)));
+        opts.add(new Ui.Opt("Pontos no Google Maps", () -> stopsPage(a, list, host)));
         opts.add(new Ui.Opt("Renomear lista", () ->
                 Ui.askText(a, "Renomear lista", null, list.name, "Nome da lista", false, name -> {
                     if (name.isEmpty()) return;
@@ -227,6 +191,105 @@ public final class ListOptions {
                 .setNegativeButton("Cancelar", null)
                 .show()));
         return opts;
+    }
+
+    /** Vincular à posição onde estou agora, ou desvincular. */
+    static void positionMenu(Activity a, Store.UserList list, Host host) {
+        String[] items = {
+                list.hasPlace() ? "Vincular à posição onde estou agora, troca a posição salva" : "Vincular à posição onde estou agora",
+                "Desvincular da posição"};
+        new AlertDialog.Builder(a)
+                .setTitle("Posição da lista " + list.name + (list.hasPlace() ? ", vinculada" : ", sem posição"))
+                .setItems(items, (d, w) -> {
+                    if (w == 0) { link(a, list, host); return; }
+                    if (!list.hasPlace()) { Ui.say(a, "A lista " + list.name + " não está vinculada a nenhuma posição"); return; }
+                    list.hasLoc = false;
+                    list.cells.clear();
+                    Store.get(a).saveLists();
+                    Ui.say(a, "Lista " + list.name + " desvinculada da posição");
+                    host.changed();
+                })
+                .setNegativeButton("Fechar", null)
+                .show();
+    }
+
+    /**
+     * Página Pontos no Google Maps: "Adicionar ponto do Google Maps" no topo e os pontos embaixo.
+     * Em cima de cada ponto, ações do TalkBack: Editar, Remover, Mover para cima, Mover para baixo.
+     * Tocar num ponto abre um menu com as mesmas opções e Abrir no Google Maps.
+     */
+    static void stopsPage(Activity a, Store.UserList list, Host host) {
+        List<String> rows = new ArrayList<>();
+        Runnable fill = () -> {
+            rows.clear();
+            rows.add("Adicionar ponto do Google Maps");
+            for (int i = 0; i < list.stops.size(); i++)
+                rows.add(list.stops.get(i).name + ", ponto " + (i + 1) + " de " + list.stops.size());
+        };
+        fill.run();
+        android.widget.ListView lv = new android.widget.ListView(a);
+        final AlertDialog[] dlg = {null};
+        final ActionAdapter[] ad = {null};
+        Runnable refresh = () -> { fill.run(); ad[0].notifyDataSetChanged(); host.changed(); };
+        ad[0] = new ActionAdapter(a, rows, pos -> {
+            if (pos == 0) return null;
+            int i = pos - 1;
+            return stopActions(a, list, i, refresh, lv);
+        });
+        lv.setAdapter(ad[0]);
+        lv.setOnItemClickListener((p, v, pos, id) -> {
+            if (pos == 0) { stopDialog(a, list, host, null, refresh); return; }
+            int i = pos - 1;
+            List<Ui.Opt> o = new ArrayList<>();
+            o.add(new Ui.Opt("Abrir no Google Maps", () -> openStop(a, list.stops.get(i))));
+            o.addAll(stopActions(a, list, i, refresh, lv));
+            String[] labels = new String[o.size()];
+            for (int k = 0; k < labels.length; k++) labels[k] = o.get(k).label;
+            new AlertDialog.Builder(a)
+                    .setTitle(list.stops.get(i).name)
+                    .setItems(labels, (d, w) -> o.get(w).run.run())
+                    .setNegativeButton("Fechar", null)
+                    .show();
+        });
+        dlg[0] = new AlertDialog.Builder(a)
+                .setTitle("Pontos no Google Maps da lista " + list.name)
+                .setView(lv)
+                .setNegativeButton("Fechar", null)
+                .show();
+    }
+
+    /** Ações de um ponto na página Pontos no Google Maps. */
+    private static List<Ui.Opt> stopActions(Activity a, Store.UserList list, int i, Runnable refresh, android.widget.ListView lv) {
+        List<Ui.Opt> o = new ArrayList<>();
+        if (i < 0 || i >= list.stops.size()) return o;
+        o.add(new Ui.Opt("Editar", () -> stopDialog(a, list, null, list.stops.get(i), refresh)));
+        o.add(new Ui.Opt("Remover", () -> new AlertDialog.Builder(a)
+                .setTitle("Remover o ponto " + list.stops.get(i).name + "?")
+                .setPositiveButton("Remover", (d, w) -> {
+                    Store.Stop s = list.stops.remove(i);
+                    Store.get(a).saveLists();
+                    Ui.say(a, "Ponto " + s.name + " removido");
+                    refresh.run();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show()));
+        if (i > 0) o.add(new Ui.Opt("Mover para cima", () -> move(a, list, i, i - 1, refresh, lv, 1)));
+        if (i < list.stops.size() - 1) o.add(new Ui.Opt("Mover para baixo", () -> move(a, list, i, i + 1, refresh, lv, 1)));
+        return o;
+    }
+
+    /** Troca a ordem e leva o foco do TalkBack junto. offset = linhas antes dos pontos na lista da tela. */
+    private static void move(Activity a, Store.UserList list, int from, int to, Runnable refresh, android.widget.ListView lv, int offset) {
+        Store.Stop s = list.stops.remove(from);
+        list.stops.add(to, s);
+        Store.get(a).saveLists();
+        refresh.run();
+        Ui.say(a, s.name + " movido para a posição " + (to + 1) + " de " + list.stops.size());
+        lv.post(() -> {
+            android.view.View v = lv.getChildAt(to + offset - lv.getFirstVisiblePosition());
+            if (v != null) v.performAccessibilityAction(
+                    android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+        });
     }
 
     /** Menu Opções da lista (botão na tela da lista e ação do TalkBack na tela inicial). */
