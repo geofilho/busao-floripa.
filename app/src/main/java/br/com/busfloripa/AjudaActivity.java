@@ -49,9 +49,9 @@ public class AjudaActivity extends Activity {
             "Cada linha já mostra quando o ônibus chega no seu ponto, da mais próxima para a mais distante.",
             "Toque numa linha para ver os horários de cada saída, marcar que o ônibus chegou, alterar os minutos ou remover da lista.",
             "O botão Tabela de hoje troca entre dias úteis, sábado e domingo. Use em feriados que o app não conhece.",
-            "O botão Opções da lista tem: Ligar a lista ao local onde estou agora; Desvincular a lista do local, que só aparece quando ela tem um local salvo; e Editar, que abre Renomear lista e Excluir lista.",
+            "O botão Opções da lista tem quatro opções: Vincular a lista à posição onde estou agora, Desvincular a lista da posição, Renomear lista e Excluir lista.",
             "Quando você estiver a até 700 metros do local ligado à lista, ela aparece primeiro na tela inicial.",
-            "Ligar ao local grava as células da rede da operadora, as antenas que o celular está vendo, e também a posição GPS, se o GPS responder. As células são lidas na hora, mesmo dentro de casa ou sem sinal de GPS.",
+            "Vincular à posição grava as células da rede da operadora, as antenas que o celular está vendo, e também a posição GPS, se o GPS responder. As células são lidas na hora, mesmo dentro de casa ou sem sinal de GPS.",
             "Para isso, a localização do celular precisa estar ligada: com ela desligada, o Android não deixa nenhum app ler o GPS nem as células. Se estiver desligada, o app avisa e abre a configuração.",
             "Com o tempo, sempre que o GPS confirmar que você está no local, o app aprende as outras antenas daquele lugar, e a lista passa a ser reconhecida com mais facilidade.",
 
@@ -62,7 +62,7 @@ public class AjudaActivity extends Activity {
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",
             "Na busca de linhas: uma ação para cada saída e Adicionar a uma lista.",
-            "Na tela inicial, em cima de cada lista: Ligar a lista ao local onde estou agora, Desvincular a lista do local, quando houver, e Editar. São as mesmas opções do botão Opções da lista, sem precisar abrir a lista.",
+            "Na tela inicial, em cima de cada lista: a ação Opções da lista, que abre o mesmo menu do botão Opções da lista, sem precisar abrir a lista.",
             "Dentro das suas listas, em cima de cada linha: uma ação para cada saída, O ônibus chegou agora, Alterar minutos até o meu ponto e Remover da lista.",
 
             "#Atualização",
@@ -99,7 +99,7 @@ public class AjudaActivity extends Activity {
 
             "#Permissões do Android e do Google Play",
             "Internet: usada para baixar linhas e horários e buscar atualizações. O Android libera sozinho, não pergunta.",
-            "Localização: só é pedida quando você liga uma lista ao local onde está. Escolha Durante o uso do app e, se perguntar, Localização exata. Ela é usada para a posição GPS e para ler as células da operadora; tudo fica só no celular e serve para colocar a lista certa no topo.",
+            "Localização: só é pedida quando você vincula uma lista à posição onde está. Escolha Durante o uso do app e, se perguntar, Localização exata. Ela é usada para a posição GPS e para ler as células da operadora; tudo fica só no celular e serve para colocar a lista certa no topo.",
             "Instalar aplicativos: só é pedida na primeira atualização pelo próprio app. Serve para abrir o instalador com a versão nova.",
             "Google Play Protect: como o app não vem da Play Store, o Play Protect pode avisar que o app não foi verificado ou oferecer verificar o app. Toque em Mais detalhes e depois em Instalar mesmo assim. Se perguntar se quer enviar o app para verificação, tanto faz a resposta.",
             "Verificação de desenvolvedor: desde 30 de setembro de 2026, no Brasil, o Android pode recusar apps de desenvolvedores não verificados. Se aparecer essa recusa, é preciso ativar uma vez o fluxo avançado.",

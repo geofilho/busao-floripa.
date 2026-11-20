@@ -15,7 +15,7 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
 - **Minutos até o ponto:** 0 = horário programado de saída. Para pegar em outro
   ponto, use "O ônibus chegou agora": o app mede o tempo real de viagem e usa a
   mediana das últimas 5 medições.
-- **Local da lista:** em Opções da lista, "Ligar a lista ao local onde estou agora" grava as
+- **Local da lista:** em Opções da lista, "Vincular a lista à posição onde estou agora" grava as
   células da operadora (`Cells.java`, lidas na hora) e a posição GPS se houver. A lista sobe
   para o topo quando uma célula bate ou o GPS está a até 700 m. Exige a localização do
   aparelho ligada (regra do Android 9+).

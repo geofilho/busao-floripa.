@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Opções de uma lista: "Ligar a lista ao local onde estou agora", "Desvincular a lista do local"
- * (se tiver local) e "Editar" (renomear, excluir). Usadas pelo botão Opções da lista e pelas ações do TalkBack na tela inicial.
+ * Opções de uma lista, num menu só: vincular à posição, desvincular da posição, renomear e excluir. Usadas pelo botão Opções da lista e pelas ações do TalkBack na tela inicial.
  */
 public final class ListOptions {
 
@@ -29,36 +28,26 @@ public final class ListOptions {
     /** Lista esperando a permissão de localização para gravar o local. */
     private static String pendingId;
 
+    /** Ação do TalkBack em cima da lista na tela inicial: abre o mesmo menu do botão Opções da lista. */
     public static List<Ui.Opt> actions(Activity a, Store.UserList list, Host host) {
         List<Ui.Opt> out = new ArrayList<>();
-        out.add(new Ui.Opt(list.hasPlace() ? "Ligar a lista ao local onde estou agora, troca o local salvo"
-                : "Ligar a lista ao local onde estou agora", () -> link(a, list, host)));
-        if (list.hasPlace()) out.add(new Ui.Opt("Desvincular a lista do local", () -> {
-            list.hasLoc = false;
-            list.cells.clear();
-            Store.get(a).saveLists();
-            Ui.say(a, "Lista " + list.name + " desvinculada do local");
-            host.changed();
-        }));
-        out.add(new Ui.Opt("Editar", () -> edit(a, list, host)));
+        out.add(new Ui.Opt("Opções da lista", () -> show(a, list, host)));
         return out;
     }
 
-    /** Botão Opções da lista. */
-    public static void show(Activity a, Store.UserList list, Host host) {
-        List<Ui.Opt> opts = actions(a, list, host);
-        String[] labels = new String[opts.size()];
-        for (int i = 0; i < labels.length; i++) labels[i] = opts.get(i).label;
-        new AlertDialog.Builder(a)
-                .setTitle("Opções da lista " + list.name)
-                .setItems(labels, (d, w) -> opts.get(w).run.run())
-                .setNegativeButton("Fechar", null)
-                .show();
-    }
-
-    /** Editar: renomear, excluir. */
-    public static void edit(Activity a, Store.UserList list, Host host) {
+    /** As quatro opções da lista, num menu só. */
+    static List<Ui.Opt> options(Activity a, Store.UserList list, Host host) {
         List<Ui.Opt> opts = new ArrayList<>();
+        opts.add(new Ui.Opt(list.hasPlace() ? "Vincular a lista à posição onde estou agora, troca a posição salva"
+                : "Vincular a lista à posição onde estou agora", () -> link(a, list, host)));
+        opts.add(new Ui.Opt("Desvincular a lista da posição", () -> {
+            if (!list.hasPlace()) { Ui.say(a, "A lista " + list.name + " não está vinculada a nenhuma posição"); return; }
+            list.hasLoc = false;
+            list.cells.clear();
+            Store.get(a).saveLists();
+            Ui.say(a, "Lista " + list.name + " desvinculada da posição");
+            host.changed();
+        }));
         opts.add(new Ui.Opt("Renomear lista", () ->
                 Ui.askText(a, "Renomear lista", null, list.name, "Nome da lista", false, name -> {
                     if (name.isEmpty()) return;
@@ -78,16 +67,22 @@ public final class ListOptions {
                 })
                 .setNegativeButton("Cancelar", null)
                 .show()));
+        return opts;
+    }
+
+    /** Menu Opções da lista (botão na tela da lista e ação do TalkBack na tela inicial). */
+    public static void show(Activity a, Store.UserList list, Host host) {
+        List<Ui.Opt> opts = options(a, list, host);
         String[] labels = new String[opts.size()];
         for (int i = 0; i < labels.length; i++) labels[i] = opts.get(i).label;
         new AlertDialog.Builder(a)
-                .setTitle("Editar a lista " + list.name)
+                .setTitle("Opções da lista " + list.name)
                 .setItems(labels, (d, w) -> opts.get(w).run.run())
                 .setNegativeButton("Fechar", null)
                 .show();
     }
 
-    /** Ligar ao local: pede a permissão se precisar e grava. */
+    /** Vincular à posição: pede a permissão se precisar e grava. */
     public static void link(Activity a, Store.UserList list, Host host) {
         if (Loc.granted(a)) { saveLocation(a, list, host); return; }
         pendingId = list.id;
