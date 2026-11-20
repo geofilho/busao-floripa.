@@ -52,13 +52,46 @@ public final class ListOptions {
                     .show();
             return;
         }
-        String[] names = new String[list.stops.size()];
-        for (int i = 0; i < names.length; i++) names[i] = list.stops.get(i).name;
-        new AlertDialog.Builder(a)
+        // Lista própria (em vez de setItems) para ter as ações do TalkBack Mover para cima/baixo.
+        List<String> names = new ArrayList<>();
+        for (Store.Stop s : list.stops) names.add(s.name);
+        android.widget.ListView lv = new android.widget.ListView(a);
+        final AlertDialog[] dlg = {null};
+        final ActionAdapter[] ad = {null};
+        ad[0] = new ActionAdapter(a, names, pos -> {
+            List<Ui.Opt> o = new ArrayList<>();
+            if (pos > 0) o.add(new Ui.Opt("Mover para cima", () -> moveStop(a, list, pos, pos - 1, names, ad[0], lv)));
+            if (pos < list.stops.size() - 1) o.add(new Ui.Opt("Mover para baixo", () -> moveStop(a, list, pos, pos + 1, names, ad[0], lv)));
+            return o;
+        });
+        lv.setAdapter(ad[0]);
+        lv.setOnItemClickListener((p, v, pos, id) -> {
+            if (dlg[0] != null) dlg[0].dismiss();
+            openStop(a, list.stops.get(pos));
+        });
+        dlg[0] = new AlertDialog.Builder(a)
                 .setTitle("Horário em tempo real: escolha o ponto")
-                .setItems(names, (d, w) -> openStop(a, list.stops.get(w)))
+                .setView(lv)
                 .setNegativeButton("Fechar", null)
                 .show();
+    }
+
+    /** Troca a ordem de um ponto, salva e leva o foco do TalkBack junto com ele. */
+    private static void moveStop(Activity a, Store.UserList list, int from, int to, List<String> names,
+                                 ActionAdapter ad, android.widget.ListView lv) {
+        if (to < 0 || to >= list.stops.size()) return;
+        Store.Stop s = list.stops.remove(from);
+        list.stops.add(to, s);
+        names.remove(from);
+        names.add(to, s.name);
+        Store.get(a).saveLists();
+        ad.notifyDataSetChanged();
+        Ui.say(a, s.name + " movido para a posição " + (to + 1) + " de " + list.stops.size());
+        lv.post(() -> {
+            android.view.View v = lv.getChildAt(to - lv.getFirstVisiblePosition());
+            if (v != null) v.performAccessibilityAction(
+                    android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+        });
     }
 
     /** Abre o ponto no app do Google Maps (ou no navegador, se não tiver o app). */
