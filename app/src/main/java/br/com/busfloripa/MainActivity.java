@@ -150,6 +150,18 @@ public class MainActivity extends Activity {
 
     private List<String> nowCells = new ArrayList<>();
 
+    /** O que acontece na tela inicial depois das opções de uma lista (ações do TalkBack). */
+    private final ListOptions.Host listHost = new ListOptions.Host() {
+        @Override public void status(String text) { searchStatus = false; status.setText(text); }
+        @Override public void changed() { renderLists(); }
+        @Override public void deleted() { renderLists(); }
+    };
+
+    @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
+        super.onRequestPermissionsResult(code, perms, results);
+        ListOptions.onPermission(this, code, listHost);
+    }
+
     /**
      * O GPS confirmou que você está no local de uma lista: guarda as células vistas agora também.
      * Assim a lista passa a ser reconhecida pelas células mesmo quando o GPS não responder.
@@ -337,6 +349,8 @@ public class MainActivity extends Activity {
             btn.setText(text);
             btn.setGravity(android.view.Gravity.START | android.view.Gravity.CENTER_VERTICAL);
             btn.setOnClickListener(v -> startActivity(new Intent(this, ListaActivity.class).putExtra("id", l.id)));
+            // Ações do TalkBack em cima da lista: as mesmas do botão Opções da lista.
+            ActionAdapter.attach(btn, () -> ListOptions.actions(this, l, listHost));
             listsBox.addView(btn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
         Button add = new Button(this);

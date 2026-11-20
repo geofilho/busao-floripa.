@@ -29,13 +29,19 @@ public final class ActionAdapter extends ArrayAdapter<String> {
 
     @Override public View getView(int position, View convertView, ViewGroup parent) {
         View v = super.getView(position, convertView, parent);
+        attach(v, () -> actionsFor.apply(position));
+        return v;
+    }
+
+    /** Coloca ações do TalkBack em qualquer elemento da tela (ex.: o botão de uma lista). */
+    public static void attach(View v, java.util.function.Supplier<List<Ui.Opt>> actions) {
         v.setAccessibilityDelegate(new View.AccessibilityDelegate() {
             private List<Ui.Opt> opts = Collections.emptyList();
 
             @Override public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
                 super.onInitializeAccessibilityNodeInfo(host, info);
                 List<Ui.Opt> o = null;
-                try { o = actionsFor.apply(position); } catch (Exception ignored) { }
+                try { o = actions.get(); } catch (Exception ignored) { }
                 opts = o == null ? Collections.emptyList() : o;
                 for (int i = 0; i < opts.size() && i < IDS.length; i++)
                     info.addAction(new AccessibilityNodeInfo.AccessibilityAction(IDS[i], opts.get(i).label));
@@ -48,6 +54,5 @@ public final class ActionAdapter extends ArrayAdapter<String> {
                 return super.performAccessibilityAction(host, action, args);
             }
         });
-        return v;
     }
 }

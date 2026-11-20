@@ -2,7 +2,6 @@ package br.com.busfloripa;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -82,7 +81,7 @@ public class ListaActivity extends Activity {
             Ui.say(this, "Usando tabela de " + FenixParser.DAY_NAMES[todayType()]);
         });
         findViewById(R.id.refresh).setOnClickListener(v -> refresh(true));
-        findViewById(R.id.options).setOnClickListener(v -> options());
+        findViewById(R.id.options).setOnClickListener(v -> ListOptions.show(this, list, host));
     }
 
     @Override protected void onResume() {
@@ -195,99 +194,19 @@ public class ListaActivity extends Activity {
         }
     }
 
-    private void options() {
-        List<String> opts = new ArrayList<>();
-        opts.add("Renomear lista");
-        opts.add(list.hasPlace() ? "Ligar a lista ao local onde estou agora (troca o local salvo)"
-                : "Ligar a lista ao local onde estou agora");
-        if (list.hasPlace()) opts.add("Desligar a lista do local");
-        opts.add("Excluir lista");
-        new AlertDialog.Builder(this)
-                .setTitle("Opções da lista " + list.name)
-                .setItems(opts.toArray(new String[0]), (d, w) -> {
-                    String o = opts.get(w);
-                    if (o.startsWith("Renomear")) {
-                        Ui.askText(this, "Renomear lista", null, list.name, "Nome da lista", false, name -> {
-                            if (name.isEmpty()) return;
-                            list.name = name;
-                            Store.get(this).saveLists();
-                            title.setText(name);
-                            setTitle(name);
-                            Ui.say(this, "Lista renomeada");
-                        });
-                    } else if (o.startsWith("Ligar")) {
-                        if (Loc.granted(this)) saveLocation(); else Loc.request(this);
-                    } else if (o.startsWith("Desligar")) {
-                        list.hasLoc = false;
-                        list.cells.clear();
-                        Store.get(this).saveLists();
-                        Ui.say(this, "Local removido");
-                    } else {
-                        new AlertDialog.Builder(this)
-                                .setTitle("Excluir a lista " + list.name + "?")
-                                .setMessage("As linhas saem da lista. Os horários salvos continuam no celular.")
-                                .setPositiveButton("Excluir", (d2, w2) -> {
-                                    Store.get(this).lists().remove(list);
-                                    Store.get(this).saveLists();
-                                    Ui.say(this, "Lista excluída");
-                                    finish();
-                                })
-                                .setNegativeButton("Cancelar", null)
-                                .show();
-                    }
-                })
-                .setNegativeButton("Fechar", null)
-                .show();
-    }
-
-    /**
-     * Grava o local da lista: as células da operadora na hora (funciona mesmo sem sinal de GPS)
-     * e, se o GPS ou a rede responderem, também a posição.
-     */
-    private void saveLocation() {
-        if (!Cells.locationOn(this)) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Localização desligada")
-                    .setMessage("A localização do celular está desligada. Com ela desligada, o Android não deixa nenhum app "
-                            + "ler o GPS nem as células da operadora. Ligue a localização e tente de novo.")
-                    .setPositiveButton("Abrir configuração", (d, w) -> {
-                        try { startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)); }
-                        catch (Exception e) { Ui.say(this, "Não consegui abrir a configuração"); }
-                    })
-                    .setNegativeButton("Cancelar", null)
-                    .show();
-            return;
+    /** O que acontece na tela depois das opções da lista. */
+    private final ListOptions.Host host = new ListOptions.Host() {
+        @Override public void status(String text) { status.setText(text); }
+        @Override public void changed() {
+            title.setText(list.name);
+            setTitle(list.name);
+            rebuild(true);
         }
-        List<String> now = Cells.current(this);
-        if (!now.isEmpty()) {
-            list.cells.clear();
-            list.cells.addAll(now);
-            list.hasLoc = false;
-            Store.get(this).saveLists();
-        }
-        final int nCells = now.size();
-        status.setText(nCells > 0 ? "Células da operadora salvas (" + nCells + "). Buscando também a posição GPS…"
-                : "Buscando sua localização…");
-        Loc.current(this, 60 * 1000, loc -> {
-            if (isFinishing()) return;
-            if (loc != null) {
-                list.hasLoc = true;
-                list.lat = loc.getLatitude();
-                list.lon = loc.getLongitude();
-                Store.get(this).saveLists();
-            }
-            String cellsTxt = nCells == 0 ? "" : nCells == 1 ? "1 célula da operadora" : nCells + " células da operadora";
-            if (loc != null && nCells > 0) status.setText("Local salvo: posição GPS e " + cellsTxt + ". Quando você estiver aqui, esta lista aparece primeiro.");
-            else if (loc != null) status.setText("Local salvo: posição GPS. As células da operadora não puderam ser lidas neste celular.");
-            else if (nCells > 0) status.setText("Local salvo com " + cellsTxt + ". O GPS não respondeu, mas as células já bastam para reconhecer este lugar.");
-            else status.setText("Não consegui sua localização nem as células da operadora. Verifique se a localização está ligada e tente de novo.");
-        });
-    }
+        @Override public void deleted() { finish(); }
+    };
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
         super.onRequestPermissionsResult(code, perms, results);
-        if (code != Loc.REQUEST) return;
-        if (Loc.granted(this)) saveLocation();
-        else status.setText("Sem permissão de localização, a lista não foi ligada a um local.");
+        ListOptions.onPermission(this, code, host);
     }
 }
