@@ -62,6 +62,10 @@ public final class ListOptions {
             List<Ui.Opt> o = new ArrayList<>();
             if (pos > 0) o.add(new Ui.Opt("Mover para cima", () -> moveStop(a, list, pos, pos - 1, names, ad[0], lv)));
             if (pos < list.stops.size() - 1) o.add(new Ui.Opt("Mover para baixo", () -> moveStop(a, list, pos, pos + 1, names, ad[0], lv)));
+            o.add(new Ui.Opt("Editar", () -> {
+                if (dlg[0] != null) dlg[0].dismiss();
+                stopDialog(a, list, host, list.stops.get(pos));
+            }));
             return o;
         });
         lv.setAdapter(ad[0]);
@@ -105,8 +109,21 @@ public final class ListOptions {
         catch (Exception e) { Ui.say(a, "Não encontrei um app para abrir o link"); }
     }
 
-    /** Nome e link do ponto, num quadro só. */
-    public static void addStop(Activity a, Store.UserList list, Host host) {
+    /** Escolher um dos pontos pelo nome. */
+    private static void pickStop(Activity a, Store.UserList list, String title, java.util.function.IntConsumer then) {
+        String[] names = new String[list.stops.size()];
+        for (int i = 0; i < names.length; i++) names[i] = list.stops.get(i).name;
+        new AlertDialog.Builder(a)
+                .setTitle(title)
+                .setItems(names, (d, w) -> then.accept(w))
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    public static void addStop(Activity a, Store.UserList list, Host host) { stopDialog(a, list, host, null); }
+
+    /** Nome e link do ponto, num quadro só. Com existing, edita esse ponto; sem, adiciona um novo. */
+    public static void stopDialog(Activity a, Store.UserList list, Host host, Store.Stop existing) {
         android.widget.LinearLayout box = new android.widget.LinearLayout(a);
         box.setOrientation(android.widget.LinearLayout.VERTICAL);
         int p = Ui.dp(a, 20);
@@ -128,15 +145,24 @@ public final class ListOptions {
         link.setImportantForAutofill(android.view.View.IMPORTANT_FOR_AUTOFILL_NO);
         box.addView(name);
         box.addView(link);
+        if (existing != null) { name.setText(existing.name); link.setText(existing.url); }
         new AlertDialog.Builder(a)
-                .setTitle("Adicionar ponto do Google Maps")
-                .setMessage("No Google Maps, abra o ponto de ônibus, toque em Compartilhar e copie o link. "
-                        + "Dê um nome ao ponto e cole o link aqui.")
+                .setTitle(existing == null ? "Adicionar ponto do Google Maps" : "Editar ponto " + existing.name)
+                .setMessage(existing == null ? "No Google Maps, abra o ponto de ônibus, toque em Compartilhar e copie o link. "
+                        + "Dê um nome ao ponto e cole o link aqui." : "Altere o nome, o link ou os dois.")
                 .setView(box)
                 .setPositiveButton("Salvar", (d, w) -> {
                     String url = MapsLink.firstUrl(link.getText().toString());
                     String n = name.getText().toString().trim();
                     if (url == null) { Ui.say(a, "Ponto não salvo: não encontrei um link"); return; }
+                    if (existing != null) {
+                        if (!n.isEmpty()) existing.name = n;
+                        existing.url = url;
+                        Store.get(a).saveLists();
+                        Ui.say(a, "Ponto " + existing.name + " alterado");
+                        host.changed();
+                        return;
+                    }
                     if (n.isEmpty()) n = "Ponto " + (list.stops.size() + 1);
                     list.stops.add(new Store.Stop(n, url));
                     Store.get(a).saveLists();
@@ -178,6 +204,8 @@ public final class ListOptions {
         }));
         opts.add(new Ui.Opt(REALTIME, () -> chooseStop(a, list, host)));
         opts.add(new Ui.Opt("Adicionar ponto do Google Maps", () -> addStop(a, list, host)));
+        if (!list.stops.isEmpty()) opts.add(new Ui.Opt("Editar ponto do Google Maps", () -> pickStop(a, list, "Editar qual ponto?",
+                i -> stopDialog(a, list, host, list.stops.get(i)))));
         if (!list.stops.isEmpty()) opts.add(new Ui.Opt("Remover ponto do Google Maps", () -> removeStop(a, list, host)));
         opts.add(new Ui.Opt("Renomear lista", () ->
                 Ui.askText(a, "Renomear lista", null, list.name, "Nome da lista", false, name -> {

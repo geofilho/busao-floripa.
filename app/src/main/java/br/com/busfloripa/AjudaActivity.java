@@ -49,7 +49,7 @@ public class AjudaActivity extends Activity {
             "Cada linha já mostra quando o ônibus chega no seu ponto, da mais próxima para a mais distante.",
             "Toque numa linha para ver os horários de cada saída, marcar que o ônibus chegou, alterar os minutos ou remover da lista.",
             "O botão Tabela de hoje troca entre dias úteis, sábado e domingo. Use em feriados que o app não conhece.",
-            "O botão Opções da lista tem: Vincular a lista à posição onde estou agora, Desvincular a lista da posição, Verificar horário em tempo real no Google Maps, Adicionar ponto do Google Maps, Remover ponto do Google Maps, Renomear lista e Excluir lista.",
+            "O botão Opções da lista tem: Vincular a lista à posição onde estou agora, Desvincular a lista da posição, Verificar horário em tempo real no Google Maps, Adicionar ponto do Google Maps, Editar ponto do Google Maps, Remover ponto do Google Maps, Renomear lista e Excluir lista.",
             "Quando você estiver a até 700 metros do local ligado à lista, ela aparece primeiro na tela inicial.",
             "Vincular à posição grava as células da rede da operadora, as antenas que o celular está vendo, e também a posição GPS, se o GPS responder. As células são lidas na hora, mesmo dentro de casa ou sem sinal de GPS.",
             "Para isso, a localização do celular precisa estar ligada: com ela desligada, o Android não deixa nenhum app ler o GPS nem as células. Se estiver desligada, o app avisa e abre a configuração.",
@@ -64,7 +64,8 @@ public class AjudaActivity extends Activity {
             "Para isso, salve os pontos de cada lista: em Opções da lista, Adicionar ponto do Google Maps. Dê um nome ao ponto e cole o link dele. Para pegar o link, no Google Maps abra o ponto de ônibus e toque em Compartilhar.",
             "Pode adicionar quantos pontos quiser em cada lista, por exemplo quando linhas diferentes passam em pontos diferentes.",
             "Para ver o tempo real, use Verificar horário em tempo real no Google Maps: no botão Tempo real, no canto de cima da tela da lista, ou nas ações do TalkBack. Abre um menu com os pontos pelo nome, na ordem em que foram adicionados. Escolha um e o Google Maps abre nele.",
-            "Para mudar a ordem dos pontos, nesse menu use as ações do TalkBack em cima do ponto: Mover para cima ou Mover para baixo. A nova ordem fica salva.",
+            "Para mudar a ordem dos pontos, nesse menu use as ações do TalkBack em cima do ponto: Mover para cima ou Mover para baixo. A nova ordem fica salva. A ação Editar, ali mesmo, muda o nome ou o link do ponto.",
+            "Para alterar um ponto, use também Opções da lista, Editar ponto do Google Maps, escolha o ponto e altere o nome, o link ou os dois.",
 
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",
