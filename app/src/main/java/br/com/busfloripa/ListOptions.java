@@ -52,6 +52,8 @@ public final class ListOptions {
                     .show();
             return;
         }
+        // Um ponto só: abre direto no Google Maps, sem menu.
+        if (list.stops.size() == 1) { openStop(a, list.stops.get(0)); return; }
         // Lista própria (em vez de setItems) para ter as ações do TalkBack Mover para cima/baixo.
         List<String> names = new ArrayList<>();
         for (Store.Stop s : list.stops) names.add(s.name);
