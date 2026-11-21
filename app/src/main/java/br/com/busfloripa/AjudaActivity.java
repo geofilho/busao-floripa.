@@ -14,16 +14,16 @@ public class AjudaActivity extends Activity {
 
     /** "#" no início = título. */
     private static final String[] TEXT = {
-            "#Mais opções",
-            "No canto de cima da tela inicial fica Mais opções, com três opções: Atualizar linhas e horários, Como usar e Dados.",
+            "#Barra de cima",
+            "O botão Pontos abre o Google Maps já pesquisando pontos de ônibus, mostrando os mais próximos de onde você está.",
+            "À direita dele fica o botão Intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix. A escolha fica memorizada: se você sair do aplicativo na tela intermunicipal, ele abre de novo nela, e o mesmo vale para a tela Fênix.",
+            "Para quem percorre a tela com o TalkBack deslizando, os botões Pontos e Intermunicipal são lidos logo depois do título Linhas de ônibus, antes do campo de busca. Na tela, eles continuam na barra de cima.",
+            "Em Mais opções ficam três opções: Atualizar linhas e horários, Como usar e Dados.",
             "Atualizar linhas e horários baixa na hora, dos sites das empresas, a lista de linhas e os horários das linhas que você usa. O app já faz isso sozinho uma vez por dia; use quando quiser os horários mais novos agora.",
             "Dados abre Backup, Diagnóstico e Atualizar aplicativo. Backup abre Fazer backup e Restaurar backup.",
 
             "#Tela inicial",
             "No topo ficam suas listas. Embaixo, a busca de linhas por número ou nome, sem precisar de acento.",
-            "Logo abaixo do título Linhas de ônibus vêm, nesta ordem: o botão Pontos, o botão Intermunicipal, o campo Buscar linha por número ou nome e, depois dele, as linhas. Assim, quem percorre a tela desde o começo com o TalkBack encontra tudo na sequência.",
-            "O botão Pontos, que o TalkBack lê como Localizar pontos de ônibus próximos no Google Maps, abre o Google Maps já pesquisando pontos de ônibus, mostrando os mais próximos de onde você está.",
-            "À direita dele fica o botão Intermunicipal, que o TalkBack lê como Alternar para transporte intermunicipal. Ele troca a lista de linhas para as empresas intermunicipais. Na tela intermunicipal, o mesmo botão se chama Fênix e volta para o Consórcio Fênix. A escolha fica memorizada: se você sair do aplicativo na tela intermunicipal, ele abre de novo nela, e o mesmo vale para a tela Fênix.",
             "Quando há texto na busca, aparece à direita do campo o botão Limpar, que apaga o que foi digitado e mostra todas as linhas de novo. Com uma busca feita, o gesto de voltar também limpa a busca.",
 
             "#Transporte intermunicipal",

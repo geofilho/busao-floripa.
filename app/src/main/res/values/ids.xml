@@ -9,4 +9,7 @@
     <item name="action_6" type="id" />
     <item name="action_7" type="id" />
     <item name="action_8" type="id" />
+    <!-- Botões Pontos e Intermunicipal da barra de cima (ordem do TalkBack) -->
+    <item name="barNearby" type="id" />
+    <item name="barSwitch" type="id" />
 </resources>

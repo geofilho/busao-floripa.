@@ -28,33 +28,6 @@
         android:labelFor="@+id/search"
         android:text="Linhas de ônibus" />
 
-    <!-- Logo abaixo do título, para quem percorre a tela do início com o TalkBack encontrar estes botões. -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/nearbyStops"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="Localizar pontos de ônibus próximos no Google Maps"
-            android:minHeight="56dp"
-            android:text="Pontos"
-            android:textSize="18sp" />
-
-        <Button
-            android:id="@+id/switchMode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="Alternar para transporte intermunicipal"
-            android:minHeight="56dp"
-            android:text="Intermunicipal"
-            android:textSize="18sp" />
-    </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
