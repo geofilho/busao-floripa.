@@ -19,7 +19,7 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
   células da operadora (`Cells.java`, lidas na hora) e a posição GPS se houver. A lista sobe
   para o topo quando uma célula bate ou o GPS está a até 700 m. Exige a localização do
   aparelho ligada (regra do Android 9+).
-- **Pontos:** botão na barra abre o Google Maps com a busca "pontos de ônibus".
+- **Pontos:** botão logo abaixo do título Linhas de ônibus abre o Google Maps com a busca "pontos de ônibus".
 
 - **Offline:** linhas e horários ficam salvos no celular e funcionam sem internet.
 - **Atualização diária:** na primeira vez que o app é aberto no dia, baixa a lista de
@@ -33,7 +33,7 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
   linhas, minutos, local GPS e link do Google Maps. Restaurar backup traz de volta
   (substituindo ou juntando com as listas atuais).
 - **Ações do TalkBack:** nas linhas da busca e das listas, as mesmas opções da janela.
-- **Intermunicipal:** botão na barra de cima alterna entre o Fênix e as linhas da Biguaçu (via as consultas internas do site tcbiguacu.com.br, `BiguacuParser.java`),
+- **Intermunicipal:** botão logo abaixo do título Linhas de ônibus alterna entre o Fênix e as linhas da Biguaçu (via as consultas internas do site tcbiguacu.com.br, `BiguacuParser.java`),
   Estrela (insulartc.com.br/estrela) e da Santa Terezinha (santaterezinha.com/horarios),
   lidas por `GenericParser.java`, e da Jotur (www2.jotur.com.br/linhas, `JoturParser.java`). O leitor do Fênix não muda.
 - **Atualização do app:** Mais opções, Dados, Atualizar aplicativo lê a última versão em
@@ -54,3 +54,7 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
   Mantenha o repositório privado.
 
 Horários: Consórcio Fênix. Podem mudar; em caso de dúvida, confira no site.
+
+## Baixa visão
+
+Textos em sp (fonte do sistema até 200%), tema claro/escuro do sistema, contraste mínimo 4,5:1 e tema de alto contraste quando o Android está em Contraste médio ou alto (`App.java`, Android 14+).

@@ -4,4 +4,8 @@
     <color name="accent">#0B6E4F</color>
     <color name="selected">#9CC7F0</color>
     <color name="icon_bg">#0B4F8A</color>
+    <!-- Texto de dica (campo vazio): 5,9:1 sobre o fundo claro. -->
+    <color name="hint">#616161</color>
+    <!-- Cor de destaque para texto e botões de diálogo: 8,4:1 sobre branco. -->
+    <color name="accent_text">#0B4F8A</color>
 </resources>

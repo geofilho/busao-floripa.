@@ -2,9 +2,10 @@
     <style name="AppTheme" parent="android:Theme.Material">
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primaryDark</item>
-        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorAccent">@color/accent_text</item>
         <item name="android:buttonStyle">@style/Btn</item>
         <item name="android:alertDialogTheme">@style/Dialog</item>
+        <item name="android:textColorHint">@color/hint</item>
     </style>
 
     <style name="Btn" parent="android:Widget.Material.Button">
@@ -34,6 +35,27 @@
 
     <style name="Dialog" parent="android:Theme.Material.Dialog.Alert">
         <item name="android:textSize">20sp</item>
-        <item name="android:colorAccent">@color/selected</item>
+        <item name="android:colorAccent">@color/accent_text</item>
+        <item name="android:textColorHint">@color/hint</item>
+    </style>
+
+    <!-- Alto contraste: usado quando o Android está com Contraste médio ou alto (Android 14 ou mais novo).
+         Texto puro sobre fundo puro. -->
+    <style name="HighContrast">
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#FFFFFF</item>
+        <item name="android:textColorHint">#E0E0E0</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:colorBackground">#000000</item>
+        <item name="android:colorAccent">#BFDFFF</item>
+        <item name="android:alertDialogTheme">@style/DialogHighContrast</item>
+    </style>
+
+    <style name="DialogHighContrast" parent="Dialog">
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#FFFFFF</item>
+        <item name="android:textColorHint">#E0E0E0</item>
+        <item name="android:colorBackground">#000000</item>
+        <item name="android:colorAccent">#BFDFFF</item>
     </style>
 </resources>

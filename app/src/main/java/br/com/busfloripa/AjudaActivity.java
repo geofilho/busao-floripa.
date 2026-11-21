@@ -74,6 +74,11 @@ public class AjudaActivity extends Activity {
             "Na tela inicial, em cima de cada lista: Verificar horário em tempo real no Google Maps, e Opções da lista, que abre o mesmo menu do botão Opções da lista, sem precisar abrir a lista.",
             "Dentro das suas listas, em cima de cada linha: uma ação para cada saída, O ônibus chegou agora, Verificar horário em tempo real no Google Maps, Alterar minutos até o meu ponto e Remover da lista.",
 
+            "#Baixa visão",
+            "O aplicativo segue as configurações de acessibilidade do Android. Tamanho da fonte, até 200% no Android 14 ou mais novo, e texto em negrito mudam os textos do app. Tamanho de exibição aumenta botões e telas. Ampliação, inversão de cores, correção de cor e texto em alto contraste funcionam normalmente.",
+            "Tema escuro: se o Android estiver no tema escuro, o app também fica escuro. As cores do texto e dos botões seguem a regra do Google de contraste mínimo de 4,5 para 1, nos dois temas.",
+            "Contraste: no Android 14 ou mais novo, em Configurações, Acessibilidade, escolha Contraste médio ou alto. O app passa a usar texto preto puro sobre fundo branco, ou branco puro sobre preto no tema escuro. A mudança vale na hora, sem reabrir o app.",
+
             "#Atualização",
             "Na primeira vez que você abre o app no dia, os horários são atualizados.",
             "Sem internet, o app usa os horários salvos no celular e tenta atualizar de novo depois.",

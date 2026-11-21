@@ -1,3 +1,7 @@
 <resources>
     <color name="selected">#2F5F8F</color>
+    <!-- Texto de dica no tema escuro: 6:1 sobre o fundo escuro. -->
+    <color name="hint">#B0B0B0</color>
+    <!-- Destaque no tema escuro (botões dos diálogos, cursor): azul claro, 5,6:1 a 7,4:1. -->
+    <color name="accent_text">#9CC7F0</color>
 </resources>
