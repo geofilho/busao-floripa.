@@ -43,6 +43,8 @@ public class MainActivity extends Activity {
         listsBox = findViewById(R.id.listsBox);
         listsScroll = findViewById(R.id.listsScroll);
         search = findViewById(R.id.search);
+        findViewById(R.id.nearbyStops).setOnClickListener(v -> openNearbyStops());
+        findViewById(R.id.switchMode).setOnClickListener(v -> toggleMode());
         status = findViewById(R.id.status);
         Ui.heading(findViewById(R.id.listsTitle));
         Ui.heading(findViewById(R.id.linesTitle));
@@ -93,7 +95,9 @@ public class MainActivity extends Activity {
         TextView t = findViewById(R.id.linesTitle);
         t.setText(inter ? "Linhas intermunicipais" : "Linhas de ônibus");
         search.setHint(inter ? "Buscar linha intermunicipal por número, nome ou empresa" : "Buscar linha por número ou nome");
-        invalidateOptionsMenu();
+        android.widget.Button sw = findViewById(R.id.switchMode);
+        sw.setText(inter ? "Fênix" : "Intermunicipal");
+        sw.setContentDescription(inter ? "Alternar para Consórcio Fênix" : "Alternar para transporte intermunicipal");
     }
 
     private void toggleMode() {
@@ -448,14 +452,7 @@ public class MainActivity extends Activity {
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        // Botão na barra: abre o Google Maps já buscando pontos de ônibus perto de você.
-        MenuItem pts = menu.add(0, 9, 0, "Pontos");
-        pts.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-        pts.setContentDescription("Localizar pontos de ônibus próximos no Google Maps");
-        // Botão na barra, à esquerda de Mais opções: alterna entre Fênix e intermunicipal.
-        MenuItem sw = menu.add(0, 7, 0, inter ? "Fênix" : "Intermunicipal");
-        sw.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-        sw.setContentDescription(inter ? "Alternar para Consórcio Fênix" : "Alternar para transporte intermunicipal");
+        // Pontos e Intermunicipal/Fênix ficam na tela, logo abaixo do título Linhas de ônibus.
         menu.add(0, 1, 0, "Atualizar linhas e horários");
         menu.add(0, 2, 0, "Como usar");
         android.view.SubMenu dados = menu.addSubMenu(0, 6, 0, "Dados");
