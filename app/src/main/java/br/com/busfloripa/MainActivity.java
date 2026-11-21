@@ -380,10 +380,26 @@ public class MainActivity extends Activity {
                     .setTitle("Backup salvo")
                     .setMessage((n == 1 ? "1 lista salva" : n + " listas salvas")
                             + (loc == 0 ? "." : ", " + (loc == 1 ? "1 com local GPS." : loc + " com local GPS.")))
-                    .setPositiveButton("Fechar", null)
+                    .setPositiveButton("Compartilhar", (d, w) -> shareBackup(uri))
+                    .setNegativeButton("Fechar", null)
                     .show();
         } catch (Exception e) {
             Ui.say(this, "Não foi possível salvar o backup: " + e.getMessage());
+        }
+    }
+
+    /** Envia o arquivo de backup salvo por WhatsApp, e-mail, Drive etc. */
+    private void shareBackup(android.net.Uri uri) {
+        Intent send = new Intent(Intent.ACTION_SEND)
+                .setType("application/json")
+                .putExtra(Intent.EXTRA_STREAM, uri)
+                .putExtra(Intent.EXTRA_SUBJECT, "Backup do Busão Floripa G")
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        send.setClipData(android.content.ClipData.newRawUri("Backup do Busão Floripa G", uri));
+        try {
+            startActivity(Intent.createChooser(send, "Compartilhar backup").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
+        } catch (Exception e) {
+            Ui.say(this, "Não encontrei um aplicativo para compartilhar o backup");
         }
     }
 

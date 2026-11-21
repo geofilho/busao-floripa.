@@ -83,7 +83,7 @@ public class AjudaActivity extends Activity {
             "Em Mais opções, Dados, Diagnóstico, toque em Copiar relatório e envie o texto para quem cuida do app.",
 
             "#Backup",
-            "Mais opções, Dados, Backup, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais das listas, com posição GPS e células da operadora, e os pontos do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive.",
+            "Mais opções, Dados, Backup, Fazer backup: salva num arquivo suas listas, com as linhas, os minutos e as medições, os locais das listas, com posição GPS e células da operadora, e os pontos do Google Maps. Você escolhe onde salvar, por exemplo no Google Drive. Depois de salvar, o aviso Backup salvo tem o botão Compartilhar, para mandar o arquivo por WhatsApp, e-mail ou outro aplicativo.",
             "Mais opções, Dados, Backup, Restaurar backup: abre esse arquivo e traz as listas de volta, por exemplo num celular novo. Você escolhe se substitui suas listas ou junta com elas.",
 
             "#Sobre os horários",
