@@ -112,11 +112,11 @@ public final class Schedule {
         return 0;
     }
 
-    /** Versão curta para a lista: "sentido centro", "sentido bairro" ou "saída X". */
+    /** Versão curta para a lista: "saída centro", "saída bairro" ou "saída X". */
     public static String sentidoShort(FenixParser.Timetable tt, int idx) {
         int d = direction(tt, idx);
-        if (d == CENTRO) return "sentido centro";
-        if (d == BAIRRO) return "sentido bairro";
+        if (d == CENTRO) return "saída centro";
+        if (d == BAIRRO) return "saída bairro";
         return "saída " + tt.departures.get(idx).name;
     }
 

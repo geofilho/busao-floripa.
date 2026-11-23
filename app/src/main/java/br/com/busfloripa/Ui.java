@@ -111,7 +111,7 @@ public final class Ui {
         if (cands.isEmpty()) {
             new AlertDialog.Builder(a).setTitle("O ônibus chegou agora")
                     .setMessage("Nenhum " + item.title() + " saiu de " + item.dep + " nas últimas 2 horas. "
-                            + "Confira se é a linha e o sentido certos.")
+                            + "Confira se é a linha e a saída certas.")
                     .setPositiveButton("Fechar", null).show();
             return;
         }
@@ -306,7 +306,7 @@ public final class Ui {
         String[] labels = new String[order.size()];
         for (int i = 0; i < order.size(); i++) labels[i] = Schedule.sentidoLabel(tt, order.get(i));
         new AlertDialog.Builder(a)
-                .setTitle("Qual sentido você pega?")
+                .setTitle("Qual saída você pega?")
                 .setItems(labels, (d, w) -> withDep.accept(order.get(w)))
                 .setNegativeButton("Cancelar", null)
                 .show();
