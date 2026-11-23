@@ -277,6 +277,7 @@ public final class ListOptions {
         box.setOrientation(android.widget.LinearLayout.VERTICAL);
         scroll.addView(box);
         final Runnable[] fill = {null};
+        final AlertDialog[] page = {null};
         fill[0] = () -> {
             box.removeAllViews();
             android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
@@ -285,7 +286,11 @@ public final class ListOptions {
             for (int k = 0; k < list.stops.size(); k++) {
                 final int i = k;
                 // Tocar no ponto abre direto no Google Maps.
-                android.widget.TextView t = row(a, list.stops.get(i).name, v -> openStop(a, list.stops.get(i)));
+                android.widget.TextView t = row(a, list.stops.get(i).name, v -> {
+                    // Fecha a página antes, para voltar à tela do app quando sair do Google Maps.
+                    if (page[0] != null) page[0].dismiss();
+                    openStop(a, list.stops.get(i));
+                });
                 // Tocar e segurar abre o menu Editar, Remover, Mover (as mesmas ações do TalkBack).
                 t.setOnLongClickListener(v -> {
                     List<Ui.Opt> o = stopActions(a, list, i, fill[0], box);
@@ -305,7 +310,7 @@ public final class ListOptions {
             host.changed();
         };
         fill[0].run();
-        new AlertDialog.Builder(a)
+        page[0] = new AlertDialog.Builder(a)
                 .setTitle("Pontos no Google Maps da lista " + list.name)
                 .setView(scroll)
                 .setNegativeButton("Fechar", null)
