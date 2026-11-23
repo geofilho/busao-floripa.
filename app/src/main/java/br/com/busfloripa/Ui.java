@@ -231,11 +231,13 @@ public final class Ui {
             out.add(new Opt("Adicionar a uma lista", () -> addToList(a, tt, url, changed)));
         } else {
             out.add(new Opt("O ônibus chegou agora", () -> busArrived(a, item, tt, changed)));
-            out.add(new Opt(ListOptions.REALTIME, () -> ListOptions.chooseStop(a, list, new ListOptions.Host() {
+            ListOptions.Host host = new ListOptions.Host() {
                 @Override public void status(String text) { say(a, text); }
                 @Override public void changed() { if (changed != null) changed.run(); }
                 @Override public void deleted() { }
-            })));
+            };
+            out.add(new Opt(ListOptions.REALTIME, () -> ListOptions.chooseStop(a, list, host)));
+            out.add(new Opt("Pontos no Google Maps", () -> ListOptions.stopsPage(a, list, host)));
             int n = item.samples.size();
             out.add(new Opt("Alterar minutos até o meu ponto, agora " + item.offset
                     + (n == 0 ? "" : n == 1 ? ", medido 1 vez" : ", medido " + n + " vezes"),
