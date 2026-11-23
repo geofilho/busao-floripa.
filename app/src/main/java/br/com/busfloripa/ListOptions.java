@@ -34,6 +34,7 @@ public final class ListOptions {
     public static List<Ui.Opt> actions(Activity a, Store.UserList list, Host host) {
         List<Ui.Opt> out = new ArrayList<>();
         out.add(new Ui.Opt(REALTIME, () -> chooseStop(a, list, host)));
+        out.add(new Ui.Opt("Pontos no Google Maps", () -> stopsPage(a, list, host)));
         out.add(new Ui.Opt("Opções da lista", () -> show(a, list, host)));
         return out;
     }

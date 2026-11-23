@@ -71,7 +71,7 @@ public class AjudaActivity extends Activity {
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",
             "Na busca de linhas: uma ação para cada saída e Adicionar a uma lista.",
-            "Na tela inicial, em cima de cada lista: Verificar horário em tempo real no Google Maps, e Opções da lista, que abre o mesmo menu do botão Opções da lista, sem precisar abrir a lista.",
+            "Na tela inicial, em cima de cada lista: Verificar horário em tempo real no Google Maps, Pontos no Google Maps, que abre a página dos pontos da lista para adicionar, editar ou remover, e Opções da lista, que abre o mesmo menu do botão Opções da lista, sem precisar abrir a lista.",
             "Dentro das suas listas, em cima de cada linha: uma ação para cada saída, O ônibus chegou agora, Verificar horário em tempo real no Google Maps, Alterar minutos até o meu ponto e Remover da lista.",
 
             "#Baixa visão",
