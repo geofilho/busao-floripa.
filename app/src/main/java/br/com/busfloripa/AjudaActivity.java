@@ -66,7 +66,7 @@ public class AjudaActivity extends Activity {
             "Pode adicionar quantos pontos quiser em cada lista, por exemplo quando linhas diferentes passam em pontos diferentes.",
             "Para ver o tempo real, use Verificar horário em tempo real no Google Maps: no botão Tempo real, no canto de cima da tela da lista, ou nas ações do TalkBack. Se a lista tem um ponto só, o Google Maps abre direto nele. Com mais de um ponto, abre um menu com os pontos pelo nome, na ordem em que foram adicionados. Escolha um e o Google Maps abre nele.",
             "Para mudar a ordem dos pontos, nesse menu use as ações do TalkBack em cima do ponto: Mover para cima ou Mover para baixo. A nova ordem fica salva. A ação Editar, ali mesmo, muda o nome ou o link do ponto.",
-            "A página Pontos no Google Maps mostra os pontos salvos logo abaixo de Adicionar ponto. Em cima de cada ponto, as ações do TalkBack são Editar, Remover, Mover para cima e Mover para baixo. Tocando no ponto, abre um menu com Abrir no Google Maps e essas mesmas opções.",
+            "A página Pontos no Google Maps mostra os pontos salvos logo abaixo de Adicionar ponto. Em cima de cada ponto, as ações do TalkBack são Editar, Remover, Mover para cima e Mover para baixo. Tocando no ponto, o Google Maps abre direto nele. Sem o TalkBack, toque e segure o ponto para ver essas mesmas opções.",
 
             "#Ações do TalkBack",
             "Em cima de uma linha, deslize para cima ou para baixo até Ações e toque duas vezes na ação desejada.",

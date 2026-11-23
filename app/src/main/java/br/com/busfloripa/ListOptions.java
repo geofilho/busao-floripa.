@@ -269,7 +269,7 @@ public final class ListOptions {
      * Página Pontos no Google Maps: "Adicionar ponto" no topo e os pontos embaixo, só com o nome.
      * Itens simples (sem lista numerada), para o TalkBack não anunciar "1 de 4".
      * Em cima de cada ponto, ações do TalkBack: Editar, Remover, Mover para cima, Mover para baixo.
-     * Tocar num ponto abre um menu com as mesmas opções e Abrir no Google Maps.
+     * Tocar num ponto abre direto no Google Maps; tocar e segurar abre o menu com as mesmas opções.
      */
     static void stopsPage(Activity a, Store.UserList list, Host host) {
         android.widget.ScrollView scroll = new android.widget.ScrollView(a);
@@ -284,10 +284,11 @@ public final class ListOptions {
             box.addView(row(a, "Adicionar ponto", v -> stopDialog(a, list, host, null, fill[0])), lp);
             for (int k = 0; k < list.stops.size(); k++) {
                 final int i = k;
-                android.widget.TextView t = row(a, list.stops.get(i).name, v -> {
-                    List<Ui.Opt> o = new ArrayList<>();
-                    o.add(new Ui.Opt("Abrir no Google Maps", () -> openStop(a, list.stops.get(i))));
-                    o.addAll(stopActions(a, list, i, fill[0], box));
+                // Tocar no ponto abre direto no Google Maps.
+                android.widget.TextView t = row(a, list.stops.get(i).name, v -> openStop(a, list.stops.get(i)));
+                // Tocar e segurar abre o menu Editar, Remover, Mover (as mesmas ações do TalkBack).
+                t.setOnLongClickListener(v -> {
+                    List<Ui.Opt> o = stopActions(a, list, i, fill[0], box);
                     String[] labels = new String[o.size()];
                     for (int n = 0; n < labels.length; n++) labels[n] = o.get(n).label;
                     new AlertDialog.Builder(a)
@@ -295,6 +296,7 @@ public final class ListOptions {
                             .setItems(labels, (d, w) -> o.get(w).run.run())
                             .setNegativeButton("Fechar", null)
                             .show();
+                    return true;
                 });
                 ActionAdapter.attach(t, () -> stopActions(a, list, i, fill[0], box));
                 box.addView(t, new android.widget.LinearLayout.LayoutParams(
