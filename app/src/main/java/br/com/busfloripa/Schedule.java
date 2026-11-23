@@ -112,11 +112,8 @@ public final class Schedule {
         return 0;
     }
 
-    /** Versão curta para a lista: "saída centro", "saída bairro" ou "saída X". */
+    /** Versão para a lista: diz de onde o ônibus sai, ex.: "saída TICEN - Plataforma A - Box 6". */
     public static String sentidoShort(FenixParser.Timetable tt, int idx) {
-        int d = direction(tt, idx);
-        if (d == CENTRO) return "saída centro";
-        if (d == BAIRRO) return "saída bairro";
         return "saída " + tt.departures.get(idx).name;
     }
 

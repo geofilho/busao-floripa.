@@ -8,7 +8,7 @@ Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
   a busca de linhas embaixo (número ou nome, sem precisar de acento).
 - **Tocar numa linha:** Saída centro, Saída bairro, Adicionar a uma lista.
 - **Lista:** mostra direto, em ordem de chegada:
-  `174, Saco Grande via João Paulo. Chega em 8 minutos, às 15:32. Depois às 15:52. Saída centro.`
+  `174, Saco Grande via João Paulo. Chega em 8 minutos, às 15:32. Depois às 15:52. Saída Saco Grande.`
   Tocar numa linha da lista: Saída centro, Saída bairro, Alterar minutos, Remover da lista.
 - **Minutos até o seu ponto:** ao adicionar, informe quantos minutos o ônibus leva
   da saída até onde você pega. O app soma e mostra a chegada no seu ponto.
