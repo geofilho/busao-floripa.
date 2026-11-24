@@ -1,5 +1,11 @@
 # Busão Floripa G
 
+## Autoria e direitos autorais
+
+Este projeto é de autoria de **geofilho** ([github.com/geofilho](https://github.com/geofilho)). Todos os direitos são reservados (veja [LICENSE](LICENSE)).
+
+Você pode usar o projeto como inspiração para criar o seu próprio, com código, nome e identidade diferentes. Copiar, clonar ou republicar este app, mesmo trocando só nomes ou ícones, exige autorização do autor: [abra uma issue](https://github.com/geofilho/busao-floripa./issues) para pedir.
+
 App Android leve e acessível (TalkBack) para consultar horários de ônibus do
 Consórcio Fênix (Florianópolis), inspirado no antigo BusDroid Floripa.
 
